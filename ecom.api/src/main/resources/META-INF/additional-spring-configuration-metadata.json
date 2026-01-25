@@ -1,0 +1,32 @@
+{"properties": [
+  {
+    "name": "app.security.rsa.public-key-path",
+    "type": "java.lang.String",
+    "description": "A description for 'app.security.rsa.public-key-path'"
+  },
+  {
+    "name": "jwt.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.secret'"
+  },
+  {
+    "name": "jwt.expiration",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.expiration'"
+  },
+  {
+    "name": "app.security.rsa.private-key-path",
+    "type": "java.lang.String",
+    "description": "A description for 'app.security.rsa.private-key-path'"
+  },
+  {
+    "name": "jwt.refresh.expiration",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.refresh.expiration'"
+  },
+  {
+    "name": "allowed.cors",
+    "type": "java.lang.String",
+    "description": "A description for 'allowed.cors'"
+  }
+]}

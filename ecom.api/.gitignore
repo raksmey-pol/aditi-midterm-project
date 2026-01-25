@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Security ###
+src/main/resources/certs/*
+.env
