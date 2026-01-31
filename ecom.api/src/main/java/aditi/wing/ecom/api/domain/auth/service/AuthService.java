@@ -1,10 +1,12 @@
 package aditi.wing.ecom.api.domain.auth.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import aditi.wing.ecom.api.domain.auth.dto.LoginRequestDto;
 import aditi.wing.ecom.api.domain.auth.dto.LoginResponseDto;
 import aditi.wing.ecom.api.domain.auth.dto.RegisterRequestDto;
+import aditi.wing.ecom.api.domain.auth.dto.RoleResponeDto;
 import aditi.wing.ecom.api.domain.auth.dto.UserResponseDto;
 
 public interface AuthService {
@@ -33,6 +35,11 @@ public interface AuthService {
      * Update user profile
      */
     UserResponseDto updateUser(UUID userId, RegisterRequestDto updateRequest);
+
+    /**
+     * Get public role
+     */
+    List<RoleResponeDto> getPublicRole();
 
     /**
      * Deactivate user account

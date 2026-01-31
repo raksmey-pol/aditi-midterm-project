@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // No sessions, use JWT
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/register").permitAll() // Public auth endpoints
+                        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/roles").permitAll() // Public auth endpoints
                         .requestMatchers("/api/public/**").permitAll() // Public endpoints
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") // Admin only
                         .anyRequest().authenticated() // Everything else requires JWT

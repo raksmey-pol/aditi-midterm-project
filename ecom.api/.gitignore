@@ -35,3 +35,5 @@ build/
 ### Security ###
 src/main/resources/certs/*
 .env
+
+ExampleUserController.java

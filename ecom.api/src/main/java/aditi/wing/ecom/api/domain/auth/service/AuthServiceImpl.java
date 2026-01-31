@@ -1,6 +1,7 @@
 package aditi.wing.ecom.api.domain.auth.service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,7 +12,9 @@ import aditi.wing.ecom.api.common.middleware.JwtMiddleware;
 import aditi.wing.ecom.api.domain.auth.dto.LoginRequestDto;
 import aditi.wing.ecom.api.domain.auth.dto.LoginResponseDto;
 import aditi.wing.ecom.api.domain.auth.dto.RegisterRequestDto;
+import aditi.wing.ecom.api.domain.auth.dto.RoleResponeDto;
 import aditi.wing.ecom.api.domain.auth.dto.UserResponseDto;
+import aditi.wing.ecom.api.domain.auth.mapper.RoleMapper;
 import aditi.wing.ecom.api.domain.auth.mapper.UserMapper;
 import aditi.wing.ecom.api.domain.auth.model.Role;
 import aditi.wing.ecom.api.domain.auth.model.User;
@@ -29,6 +32,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRoleRepository userRoleRepository;
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
+    private final RoleMapper roleMapper;
     private final JwtMiddleware jwtMiddleware;
     private final PasswordEncoder passwordEncoder;
 
@@ -62,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
         userDto.setPermissions(new HashSet<>(permissionNames));
 
         // Generate JWT tokens with email and roles
-        String accessToken = jwtMiddleware.generateToken(user.getEmail(), userDto.getRoles());
+        String accessToken = jwtMiddleware.generateToken(user.getEmail(), user.getId(), userDto.getRoles());
         String refreshToken = jwtMiddleware.generateRefreshToken(user.getEmail());
 
         return new LoginResponseDto(accessToken, refreshToken, userDto);
@@ -127,7 +131,7 @@ public class AuthServiceImpl implements AuthService {
         userDto.setPermissions(new HashSet<>(permissionNames));
 
         // Generate JWT tokens with email and roles
-        String accessToken = jwtMiddleware.generateToken(savedUser.getEmail(), userDto.getRoles());
+        String accessToken = jwtMiddleware.generateToken(savedUser.getEmail(), savedUser.getId(), userDto.getRoles());
         String refreshToken = jwtMiddleware.generateRefreshToken(savedUser.getEmail());
 
         return new LoginResponseDto(accessToken, refreshToken, userDto);
@@ -191,6 +195,16 @@ public class AuthServiceImpl implements AuthService {
         userDto.setPermissions(new HashSet<>(permissionNames));
 
         return userDto;
+    }
+
+    /**
+     * Get public role
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<RoleResponeDto> getPublicRole() {
+        List<Role> roles = roleRepository.findAllExceptAdmin();
+        return roleMapper.toRoleResponseDtoList(roles);
     }
 
     /**

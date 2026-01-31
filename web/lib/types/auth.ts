@@ -7,9 +7,10 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   passwordHash: string;
-  fullName?: string;
+  firstName: string;
+  lastName: string;
   phoneNumber?: string;
-  roleId?: string;
+  roleId: string;
 }
 
 export interface UserResponse {
@@ -32,4 +33,9 @@ export interface LoginResponse {
 
 export interface ApiError {
   message: string;
+}
+
+export interface RoleResponse {
+  id: string;
+  name: string;
 }

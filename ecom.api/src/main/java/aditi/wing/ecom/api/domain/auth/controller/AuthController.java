@@ -1,5 +1,6 @@
 package aditi.wing.ecom.api.domain.auth.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import aditi.wing.ecom.api.domain.auth.dto.LoginRequestDto;
 import aditi.wing.ecom.api.domain.auth.dto.LoginResponseDto;
 import aditi.wing.ecom.api.domain.auth.dto.RegisterRequestDto;
+import aditi.wing.ecom.api.domain.auth.dto.RoleResponeDto;
 import aditi.wing.ecom.api.domain.auth.dto.UserResponseDto;
 import aditi.wing.ecom.api.domain.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -130,6 +132,21 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+    /**
+     * Get all public roles
+     * GET /api/auth/roles
+     */
+    @GetMapping("/roles")
+    public ResponseEntity<List<RoleResponeDto>> getPublicRole() {
+        try {
+            List<RoleResponeDto> response = authService.getPublicRole();
+            return  ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+    
 
     /**
      * Health check endpoint
