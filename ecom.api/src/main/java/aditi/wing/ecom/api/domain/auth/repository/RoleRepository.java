@@ -1,5 +1,6 @@
 package aditi.wing.ecom.api.domain.auth.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,4 +35,10 @@ public interface RoleRepository extends JpaRepository<Role, UUID> {
      */
     @Query("SELECT DISTINCT r FROM Role r LEFT JOIN FETCH RolePermission rp ON r.id = rp.roleId WHERE r.name = :name")
     Optional<Role> findByNameWithPermissions(@Param("name") String name);
+
+    /**
+     * Find all roles except admin
+     */
+    @Query("SELECT r FROM Role r WHERE LOWER(r.name) != 'admin'")
+    List<Role> findAllExceptAdmin();
 }

@@ -39,7 +39,7 @@ export default function Login() {
       authService.setUser(response.user);
 
       // Redirect to dashboard or home
-      router.push("/");
+      router.push("/admin");
 
       // TODO: Redirect based on roles
     } catch (err) {
@@ -91,7 +91,7 @@ export default function Login() {
                     id="email"
                     type="email"
                     autoComplete="email"
-                    placeholder="your_name@example.com"
+                    placeholder="your_email@example.com"
                     className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -124,24 +124,6 @@ export default function Login() {
                     required
                   />
                 </Field>
-
-                {/* Remember Me */}
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="remember"
-                    className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-primary/20"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    disabled={loading}
-                  />
-                  <label
-                    htmlFor="remember"
-                    className="text-sm text-muted-foreground cursor-pointer"
-                  >
-                    Remember me for 30 days
-                  </label>
-                </div>
 
                 {/* Login Button */}
                 <button

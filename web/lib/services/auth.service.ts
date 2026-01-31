@@ -3,6 +3,7 @@ import type {
   LoginRequest,
   LoginResponse,
   RegisterRequest,
+  RoleResponse,
   UserResponse,
 } from "@/lib/types/auth";
 
@@ -107,6 +108,13 @@ export class AuthService {
   setUser(user: UserResponse): void {
     if (typeof window === "undefined") return;
     localStorage.setItem("user", JSON.stringify(user));
+  }
+
+  /**
+   * Get public roles
+   */
+  async getPublicRole(): Promise<RoleResponse[]> {
+    return apiClient.get<RoleResponse[]>(`${API_CONFIG.endpoints.auth.roles}`);
   }
 }
 

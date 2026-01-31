@@ -4,10 +4,16 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import aditi.wing.ecom.api.domain.auth.model.User;
+import aditi.wing.ecom.api.domain.auth.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -16,10 +22,12 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 
 @Service
+@RequiredArgsConstructor
 public class JwtMiddleware {
 
     private final PrivateKey privateKey;
     private final PublicKey publicKey;
+    private final UserRepository userRepository;
 
     @Value("${jwt.expiration}")
     private int jwtExpirationMs;
@@ -27,16 +35,12 @@ public class JwtMiddleware {
     @Value("${jwt.refresh.expiration}")
     private int jwtRefreshExpirationMs;
 
-    public JwtMiddleware(PrivateKey privateKey, PublicKey publicKey) {
-        this.privateKey = privateKey;
-        this.publicKey = publicKey;
-    }
-
     // Generate JWT token with RSA512
-    public String generateToken(String email, Set<String> roles) {
+    public String generateToken(String email, UUID userId, Set<String> roles) {
         return Jwts.builder()
                 .subject(email)
                 .claim("email", email)
+                .claim("userId", userId.toString())
                 .claim("roles", roles)
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
@@ -64,6 +68,26 @@ public class JwtMiddleware {
                 .parseSignedClaims(token)
                 .getPayload()
                 .getSubject();
+    }
+
+    // Get user UUID from JWT token
+    public UUID getUserIdFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(publicKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        String userId = claims.get("userId", String.class);
+        return userId != null ? UUID.fromString(userId) : null;
+    }
+
+    // Get full User entity from JWT token
+    public Optional<User> getUserFromToken(String token) {
+        UUID userId = getUserIdFromToken(token);
+        if (userId == null) {
+            return Optional.empty();
+        }
+        return userRepository.findById(userId);
     }
 
     // Get roles from JWT token
