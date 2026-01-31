@@ -129,6 +129,7 @@ export PORT=8080
 # JWT Configuration
 export JWT_SECRET=your-secret-key-here-minimum-256-bits
 ```
+Example only more variables might appear please check ```.env example``` file
 
 **For development**, you can also create `application-dev.properties` in `src/main/resources/`:
 
@@ -205,6 +206,9 @@ The frontend will be available at `http://localhost:3000`
    export JWT_SECRET=your-secret-key-here
    ./mvnw spring-boot:run
    ```
+
+   OR simply run
+   ```run.sh```
 
 3. **Start the frontend** (in a new terminal):
 
