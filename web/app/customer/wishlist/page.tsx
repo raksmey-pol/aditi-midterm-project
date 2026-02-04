@@ -27,7 +27,7 @@ const WishListPage = () => {
           <h1 className="mb-5 text-[32px] font-bold uppercase md:mb-6 md:text-[40px]">
             wishlist
           </h1>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 justify-items-center sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             <ProductCard />
             <ProductCard />
             <ProductCard />
