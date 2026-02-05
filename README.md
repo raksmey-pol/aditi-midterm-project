@@ -148,9 +148,13 @@ jwt.secret=your-secret-key-here-minimum-256-bits
 ./mvnw clean install
 ./mvnw spring-boot:run
 
-# Or using the run script
+# Or using the run script 
+## (Linux/MacOS)
 chmod +x run.sh
 ./run.sh
+
+## (Windows)
+```powershell -ExecutionPolicy Bypass -File run.ps1```
 
 # Or using installed Maven
 mvn clean install
