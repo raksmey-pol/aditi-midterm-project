@@ -18,7 +18,6 @@ export default function Register() {
   const [roleId, setRoleId] = useState("");
   const [roles, setRoles] = useState<RoleResponse[]>([]);
   const [error, setError] = useState("");
-  1;
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -33,6 +32,30 @@ export default function Register() {
     };
     fetchRoles();
   }, []);
+
+  /**
+   * Get redirect path based on user roles
+   * Priority: admin > seller > buyer > default
+   */
+  const getRedirectPath = (roles: string[]): string => {
+    if (!roles || roles.length === 0) {
+      return "/customer/dashboard"; // Default for users without roles
+    }
+
+    // Check roles in priority order
+    if (roles.includes("admin")) {
+      return "/admin";
+    }
+    if (roles.includes("seller")) {
+      return "/seller/dashboard";
+    }
+    if (roles.includes("buyer")) {
+      return "/customer/dashboard";
+    }
+
+    // Fallback to customer dashboard
+    return "/customer/dashboard";
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -65,18 +88,40 @@ export default function Register() {
       // Store user data (usually only after successful registration + login)
       authService.setUser(response.user);
 
-      // Redirect depending on role or just to dashboard/home
-      router.push("/admin");
-      // Alternative ideas:
-      // if (role === "admin") router.push("/admin");
-      // else if (role === "teacher") router.push("/teacher");
-      // else router.push("/dashboard");
+      // Redirect based on user role
+      const redirectPath = getRedirectPath(response.user.roles);
+      router.push(redirectPath);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Registration failed. Please try again.",
-      );
+      // Handle different types of errors more gracefully
+      let errorMessage = "Registration failed. Please try again.";
+
+      if (err instanceof Error) {
+        // Check for specific error messages
+        if (
+          err.message.includes("already exists") ||
+          err.message.includes("duplicate")
+        ) {
+          errorMessage =
+            "An account with this email already exists. Please login instead.";
+        } else if (
+          err.message.includes("400") ||
+          err.message.includes("Bad Request")
+        ) {
+          errorMessage = err.message.replace("HTTP 400: Bad Request - ", "");
+        } else if (err.message.includes("Backend server is not running")) {
+          errorMessage =
+            "Unable to connect to the server. Please try again later.";
+        } else if (err.message.includes("Network error")) {
+          errorMessage =
+            "Network connection error. Please check your internet connection.";
+        } else {
+          // Use the error message from the API if available
+          errorMessage = err.message;
+        }
+      }
+
+      setError(errorMessage);
+      console.error("Registration error:", err);
     } finally {
       setLoading(false);
     }
@@ -232,7 +277,7 @@ export default function Register() {
           <p className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
             <Link
-              href="/auth/login"
+              href="/login"
               className="font-semibold text-primary hover:text-primary/80 transition-colors"
             >
               Sign in

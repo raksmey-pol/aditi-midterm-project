@@ -43,19 +43,26 @@ export class AuthService {
   }
 
   /**
-   * Get current user
+   * Get current user from JWT token
    */
-  async getCurrentUser(email: string): Promise<UserResponse> {
-    return apiClient.get<UserResponse>(
-      `${API_CONFIG.endpoints.auth.me}?email=${encodeURIComponent(email)}`,
-    );
+  async getCurrentUser(): Promise<UserResponse> {
+    return apiClient.get<UserResponse>(API_CONFIG.endpoints.auth.me);
   }
 
   /**
-   * Logout user
+   * Logout user - Invalidates token on backend and clears local storage
    */
-  logout(): void {
-    this.clearTokens();
+  async logout(): Promise<void> {
+    try {
+      // Call backend logout endpoint to invalidate token
+      await apiClient.post(API_CONFIG.endpoints.auth.logout);
+    } catch (error) {
+      // Log error but still clear local tokens
+      console.error("Logout error:", error);
+    } finally {
+      // Always clear tokens from local storage
+      this.clearTokens();
+    }
   }
 
   /**

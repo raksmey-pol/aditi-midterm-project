@@ -13,15 +13,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import aditi.wing.ecom.api.common.util.JwtUtil;
 import aditi.wing.ecom.api.domain.auth.dto.LoginRequestDto;
 import aditi.wing.ecom.api.domain.auth.dto.LoginResponseDto;
 import aditi.wing.ecom.api.domain.auth.dto.RegisterRequestDto;
-import aditi.wing.ecom.api.domain.auth.dto.RoleResponeDto;
+import aditi.wing.ecom.api.domain.auth.dto.RoleResponseDto;
 import aditi.wing.ecom.api.domain.auth.dto.UserResponseDto;
 import aditi.wing.ecom.api.domain.auth.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -31,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtUtil jwtUtil;
 
     /**
      * Login endpoint
@@ -74,18 +76,60 @@ public class AuthController {
     private record ErrorResponse(String message) {
     }
 
+    // Logout response class
+    private record LogoutResponse(String message, String details) {
+    }
+
+    /**
+     * Logout endpoint - Invalidate token
+     * POST /api/auth/logout
+     * Note: JWT tokens are stateless. Client should discard the token.
+     * In production, consider implementing a token blacklist with Redis.
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        try {
+            // Extract token from request to validate it exists
+            String token = jwtUtil.extractTokenFromRequest(request);
+
+            if (token == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new ErrorResponse("No token provided"));
+            }
+
+            // TODO: In production, add token to blacklist (e.g., Redis) for invalidation
+            // For now, client should discard the token on their end
+
+            return ResponseEntity.ok(new LogoutResponse(
+                    "Logout successful",
+                    "Token has been invalidated. Please discard the token on client side."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Logout failed: " + e.getMessage()));
+        }
+    }
+
     /**
      * Get current user profile
      * GET /api/auth/me
+     * Extracts user information from JWT token in Authorization header
      */
     @GetMapping("/me")
-    public ResponseEntity<UserResponseDto> getCurrentUser(@RequestParam String email) {
-        // TODO: Extract user from JWT token instead of query parameter
+    public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
         try {
+            // Extract user email from JWT token
+            String email = jwtUtil.getEmailFromRequest(request);
+
+            if (email == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new ErrorResponse("Invalid or missing token"));
+            }
+
             UserResponseDto response = authService.getUserByEmail(email);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("User not found: " + e.getMessage()));
         }
     }
 
@@ -138,15 +182,14 @@ public class AuthController {
      * GET /api/auth/roles
      */
     @GetMapping("/roles")
-    public ResponseEntity<List<RoleResponeDto>> getPublicRole() {
+    public ResponseEntity<List<RoleResponseDto>> getPublicRole() {
         try {
-            List<RoleResponeDto> response = authService.getPublicRole();
-            return  ResponseEntity.ok(response);
+            List<RoleResponseDto> response = authService.getPublicRole();
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-    
 
     /**
      * Health check endpoint

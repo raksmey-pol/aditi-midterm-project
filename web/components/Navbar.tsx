@@ -7,6 +7,7 @@ import SearchBar from './SearchBar'
 import CartIcon from './CartIcon'
 import FavoriteButton from './FavoriteButton'
 import SignIn from './SignIn'
+import Link from 'next/link'
 
 
 
@@ -23,7 +24,9 @@ export default function Navbar() {
         <SearchBar />
         <CartIcon />
         <FavoriteButton />
-        <SignIn />
+        <Link href={"/login"}>
+          <SignIn />
+        </Link>
         </div>
       </Container>
     </nav>

@@ -5,8 +5,20 @@ export const API_CONFIG = {
     auth: {
       login: "/api/auth/login",
       register: "/api/auth/register",
+      logout: "/api/auth/logout",
       me: "/api/auth/me",
       roles: "/api/auth/roles",
+    },
+    seller: {
+      dashboard: "/api/seller/dashboard",
+      products: "/api/seller/products",
+      lowStock: "/api/seller/inventory/low-stock",
+      bulkUpdate: "/api/seller/inventory/bulk-update",
+      payouts: "/api/seller/payouts",
+    },
+    products: {
+      list: "/api/products",
+      categories: "/api/products/categories",
     },
   },
 };
@@ -51,18 +63,73 @@ export class ApiClient {
       const response = await fetch(url, config);
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({
-          message: "An error occurred",
-        }));
-        throw new Error(error.message || `HTTP ${response.status}`);
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        let errorData: any = null;
+
+        // Try to parse response body
+        const contentType = response.headers.get("content-type");
+        try {
+          if (contentType?.includes("application/json")) {
+            errorData = await response.json();
+            // Extract error message from common error response formats
+            errorMessage =
+              errorData.message ||
+              errorData.error ||
+              errorData.errorMessage ||
+              errorMessage;
+          } else {
+            const errorText = await response.text();
+            if (errorText) {
+              errorMessage = errorText;
+            }
+          }
+        } catch (parseError) {
+          // If parsing fails, use the default HTTP status message
+          console.warn("Failed to parse error response:", parseError);
+        }
+
+        // Log detailed error info for debugging
+        console.error("API Error:", {
+          url,
+          status: response.status,
+          statusText: response.statusText,
+          message: errorMessage,
+          data: errorData,
+        });
+
+        throw new Error(errorMessage);
+      }
+
+      // Handle 204 No Content responses
+      if (response.status === 204) {
+        return undefined as T;
       }
 
       return await response.json();
     } catch (error) {
+      // Check if this is a network error (backend not running)
+      if (error instanceof TypeError && error.message.includes("fetch")) {
+        const networkError = `Backend server is not running at ${this.baseURL}. Please start the Spring Boot backend.`;
+        console.error("Network Error:", {
+          url,
+          baseURL: this.baseURL,
+          error: networkError,
+        });
+        throw new Error(networkError);
+      }
+
+      // Re-throw errors we created (HTTP errors)
+      if (error instanceof Error && error.message.startsWith("HTTP")) {
+        throw error;
+      }
+
+      // Other unexpected errors
       if (error instanceof Error) {
         throw error;
       }
-      throw new Error("Network error occurred");
+
+      console.error("Unexpected Error:", error);
+      throw new Error("An unexpected error occurred. Please try again.");
     }
   }
 

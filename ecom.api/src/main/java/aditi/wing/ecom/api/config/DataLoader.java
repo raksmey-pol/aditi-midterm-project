@@ -47,8 +47,8 @@ public class DataLoader implements CommandLineRunner {
         // Assign Permissions to Roles
         assignPermissionsToRoles();
 
-        // Seed Admin User
-        seedAdminUser();
+        // Seed Users (Admin, Seller, Buyer)
+        seedUsers();
 
         log.info("RBAC data seeding completed successfully!");
     }
@@ -205,11 +205,19 @@ public class DataLoader implements CommandLineRunner {
         return assignments;
     }
 
-    private void seedAdminUser() {
+    private void seedUsers() {
         if (userRepository.count() > 0) {
-            log.info("Users already exist, skipping admin user seeding");
+            log.info("Users already exist, skipping user seeding");
             return;
         }
+
+        // Get roles
+        Role adminRole = roleRepository.findByName(Role.ADMIN)
+                .orElseThrow(() -> new RuntimeException("Admin role not found"));
+        Role sellerRole = roleRepository.findByName(Role.SELLER)
+                .orElseThrow(() -> new RuntimeException("Seller role not found"));
+        Role buyerRole = roleRepository.findByName(Role.BUYER)
+                .orElseThrow(() -> new RuntimeException("Buyer role not found"));
 
         // Create admin user
         User admin = User.builder()
@@ -221,20 +229,47 @@ public class DataLoader implements CommandLineRunner {
                 .isActive(true)
                 .emailVerified(true)
                 .build();
-
         User savedAdmin = userRepository.save(admin);
-        log.info("Created admin user: {}", savedAdmin.getEmail());
-
-        // Assign ADMIN role to the user
-        Role adminRole = roleRepository.findByName(Role.ADMIN)
-                .orElseThrow(() -> new RuntimeException("Admin role not found"));
-
-        UserRole userRole = UserRole.builder()
+        userRoleRepository.save(UserRole.builder()
                 .userId(savedAdmin.getId())
                 .roleId(adminRole.getId())
-                .build();
+                .build());
+        log.info("Created admin user: {}", savedAdmin.getEmail());
 
-        userRoleRepository.save(userRole);
-        log.info("Assigned ADMIN role to user: {}", savedAdmin.getEmail());
+        // Create seller user
+        User seller = User.builder()
+                .email("seller@ecom.com")
+                .passwordHash(passwordEncoder.encode("Seller@123"))
+                .firstName("Seller")
+                .lastName("User")
+                .phone("+1234567891")
+                .isActive(true)
+                .emailVerified(true)
+                .build();
+        User savedSeller = userRepository.save(seller);
+        userRoleRepository.save(UserRole.builder()
+                .userId(savedSeller.getId())
+                .roleId(sellerRole.getId())
+                .build());
+        log.info("Created seller user: {}", savedSeller.getEmail());
+
+        // Create buyer user
+        User buyer = User.builder()
+                .email("buyer@ecom.com")
+                .passwordHash(passwordEncoder.encode("Buyer@123"))
+                .firstName("Buyer")
+                .lastName("User")
+                .phone("+1234567892")
+                .isActive(true)
+                .emailVerified(true)
+                .build();
+        User savedBuyer = userRepository.save(buyer);
+        userRoleRepository.save(UserRole.builder()
+                .userId(savedBuyer.getId())
+                .roleId(buyerRole.getId())
+                .build());
+        log.info("Created buyer user: {}", savedBuyer.getEmail());
+
+        log.info("Successfully seeded 3 users (admin, seller, buyer)");
     }
 }

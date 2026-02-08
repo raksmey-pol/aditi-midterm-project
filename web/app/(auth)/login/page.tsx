@@ -16,6 +16,30 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  /**
+   * Get redirect path based on user roles
+   * Priority: admin > seller > buyer > default
+   */
+  const getRedirectPath = (roles: string[]): string => {
+    if (!roles || roles.length === 0) {
+      return "/customer/dashboard"; // Default for users without roles
+    }
+
+    // Check roles in priority order
+    if (roles.includes("admin")) {
+      return "/admin";
+    }
+    if (roles.includes("seller")) {
+      return "/seller/dashboard";
+    }
+    if (roles.includes("buyer")) {
+      return "/customer/dashboard";
+    }
+
+    // Fallback to customer dashboard
+    return "/customer/dashboard";
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
@@ -38,14 +62,41 @@ export default function Login() {
       // Store user data
       authService.setUser(response.user);
 
-      // Redirect to dashboard or home
-      router.push("/admin");
-
-      // TODO: Redirect based on roles
+      // Redirect based on user role
+      const redirectPath = getRedirectPath(response.user.roles);
+      router.push(redirectPath);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Login failed. Please try again.",
-      );
+      // Handle different types of errors more gracefully
+      let errorMessage = "Login failed. Please try again.";
+
+      if (err instanceof Error) {
+        // Check for specific error messages
+        if (
+          err.message.includes("401") ||
+          err.message.includes("Unauthorized")
+        ) {
+          errorMessage =
+            "Invalid email or password. Please check your credentials and try again.";
+        } else if (
+          err.message.includes("404") ||
+          err.message.includes("Not Found")
+        ) {
+          errorMessage =
+            "Account not found. Please check your email or register for a new account.";
+        } else if (err.message.includes("Backend server is not running")) {
+          errorMessage =
+            "Unable to connect to the server. Please try again later.";
+        } else if (err.message.includes("Network error")) {
+          errorMessage =
+            "Network connection error. Please check your internet connection.";
+        } else {
+          // Use the error message from the API if available
+          errorMessage = err.message;
+        }
+      }
+
+      setError(errorMessage);
+      console.error("Login error:", err);
     } finally {
       setLoading(false);
     }
@@ -148,7 +199,7 @@ export default function Login() {
           <p className="mt-8 text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
             <Link
-              href="/auth/register"
+              href="/register"
               className="font-semibold text-primary hover:text-primary/80 transition-colors"
             >
               Sign up for free
