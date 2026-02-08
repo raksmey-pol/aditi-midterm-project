@@ -33,9 +33,14 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // No sessions, use JWT
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/roles").permitAll() // Public auth endpoints
+                        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/roles").permitAll() // Public
+                                                                                                                 // auth
+                                                                                                                 // endpoints
                         .requestMatchers("/api/public/**").permitAll() // Public endpoints
+                        .requestMatchers("/api/products/**").permitAll() // Public product endpoints
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") // Admin only
+                        .requestMatchers("/api/auth/logout", "/api/auth/me").authenticated() // Require JWT for logout
+                                                                                             // and profile
                         .anyRequest().authenticated() // Everything else requires JWT
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Add JWT filter

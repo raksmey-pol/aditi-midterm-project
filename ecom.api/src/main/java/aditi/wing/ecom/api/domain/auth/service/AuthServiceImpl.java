@@ -12,7 +12,7 @@ import aditi.wing.ecom.api.common.middleware.JwtMiddleware;
 import aditi.wing.ecom.api.domain.auth.dto.LoginRequestDto;
 import aditi.wing.ecom.api.domain.auth.dto.LoginResponseDto;
 import aditi.wing.ecom.api.domain.auth.dto.RegisterRequestDto;
-import aditi.wing.ecom.api.domain.auth.dto.RoleResponeDto;
+import aditi.wing.ecom.api.domain.auth.dto.RoleResponseDto;
 import aditi.wing.ecom.api.domain.auth.dto.UserResponseDto;
 import aditi.wing.ecom.api.domain.auth.mapper.RoleMapper;
 import aditi.wing.ecom.api.domain.auth.mapper.UserMapper;
@@ -202,7 +202,7 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     @Transactional(readOnly = true)
-    public List<RoleResponeDto> getPublicRole() {
+    public List<RoleResponseDto> getPublicRole() {
         List<Role> roles = roleRepository.findAllExceptAdmin();
         return roleMapper.toRoleResponseDtoList(roles);
     }

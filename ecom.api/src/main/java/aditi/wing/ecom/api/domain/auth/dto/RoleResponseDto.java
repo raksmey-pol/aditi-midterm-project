@@ -4,7 +4,7 @@ import java.util.UUID;
 import lombok.Data;
 
 @Data
-public class RoleResponeDto {
+public class RoleResponseDto {
     private UUID id;
     private String name;
 }
