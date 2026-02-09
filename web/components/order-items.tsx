@@ -8,7 +8,7 @@ type OrderItemProps = {
   title: string;
   description: string;
   price: number;
-  status: "Pending" | "Shipped" | "Delivered" | "Cancelled";
+  status: "Shipped" | "Delivered";
 };
 
 export function OrderItem({
@@ -52,10 +52,10 @@ function statusVariant(status: OrderItemProps["status"]) {
       return "default";
     case "Shipped":
       return "secondary";
-    case "Pending":
-      return "outline";
-    case "Cancelled":
-      return "destructive";
+    // case "Pending":
+    //   return "outline";
+    // case "Cancelled":
+    //   return "destructive";
     default:
       return "outline";
   }
