@@ -1,3 +1,6 @@
+import { wishlist } from "@/app/customer/wishlist/product";
+import { changePassword } from "./services/customer-profile.service";
+
 // API Configuration
 export const API_CONFIG = {
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",
@@ -15,6 +18,12 @@ export const API_CONFIG = {
       lowStock: "/api/seller/inventory/low-stock",
       bulkUpdate: "/api/seller/inventory/bulk-update",
       payouts: "/api/seller/payouts",
+    },
+    customer: {
+      orders: "customer/orders",
+      wishlist: "customer/wishlist",
+      profile: "customer/profile",
+      changePassword:"customer/change-password"
     },
     products: {
       list: "/api/products",
