@@ -28,3 +28,25 @@ export const fetchMyOrders = async () => {
 
   return response.json();
 };
+
+export const fetchOrder = async (id: string) => {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/orders/${id}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch order details');
+  }
+
+  return response.json();
+};

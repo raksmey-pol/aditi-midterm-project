@@ -20,12 +20,10 @@ export function OrderItem({
   status,
 }: OrderItemProps) {
   return (
-    // Wrap your old layout in a Link to make it clickable
-    <Link href={`/orders/${orderId}`} className="block group">
-      <div className="space-y-4 rounded-lg transition-colors hover:bg-slate-50 p-2 -mx-2">
-        <div className="flex gap-4 mt-2">
-          {/* Product Image (Using standard img to avoid Next.js config errors with Flaticon) */}
-          <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border bg-slate-50 flex items-center justify-center p-3">
+    <Link href={`/buyer/orders/${orderId}`} className="block group">
+      <div className="space-y-4 transition-colors ">
+        <div className="flex hover:bg-slate-50 rounded-lg p-2 -mx-2 gap-4 mt-2">
+          <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border bg-slate-100 flex items-center justify-center p-3">
             <img
               src={image}
               alt={title}
@@ -33,7 +31,6 @@ export function OrderItem({
             />
           </div>
 
-          {/* Product Info */}
           <div className="flex flex-1 justify-between gap-4">
             <div className="space-y-1 mt-1">
               <p className="font-medium leading-none group-hover:text-blue-600 transition-colors">
@@ -43,7 +40,6 @@ export function OrderItem({
               <p className="text-sm font-semibold">${price.toFixed(2)}</p>
             </div>
 
-            {/* Status */}
             <div className="flex items-start mt-1">
               <Badge variant={statusVariant(status)}>{status}</Badge>
             </div>
