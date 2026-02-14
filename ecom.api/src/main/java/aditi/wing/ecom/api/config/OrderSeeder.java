@@ -24,7 +24,7 @@ public class OrderSeeder implements CommandLineRunner {
         }
 
         // 2. Use the ID from your specific Access Token
-        UUID myUserId = UUID.fromString("5fc1a9b6-3ec4-4efb-a43d-986a0da8a2dc");
+        UUID myUserId = UUID.fromString("6def51ce-e6b7-49a7-940c-90384273926d");
         UUID randomAddressId = UUID.randomUUID(); // Just a placeholder for now
 
         // 3. Create a list of dummy orders

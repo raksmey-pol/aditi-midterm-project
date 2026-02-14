@@ -23,13 +23,11 @@ public class OrderController {
     public ResponseEntity<OrderResponse> createOrder(
             @RequestBody OrderRequest request,
             Principal principal) {
-        // principal.getName() is the email string from your filter
         return ResponseEntity.ok(orderService.createOrder(request, principal.getName()));
     }
 
     @GetMapping("/mine")
     public ResponseEntity<List<OrderResponse>> getMyOrders(Principal principal) {
-        // Gets all orders belonging to the logged-in email
         return ResponseEntity.ok(orderService.getOrdersByBuyer(principal.getName()));
     }
 
@@ -37,7 +35,6 @@ public class OrderController {
     public ResponseEntity<OrderResponse> getOrder(
             @PathVariable UUID id,
             Principal principal) {
-        // Service will check if this email owns order {id}
         return ResponseEntity.ok(orderService.getOrder(id, principal.getName()));
     }
 
@@ -45,7 +42,6 @@ public class OrderController {
     public ResponseEntity<OrderResponse> updateStatus(
             @PathVariable UUID id,
             @RequestParam OrderStatus status) {
-        // Status updates usually don't require the buyer's email (Admin/Seller action)
         return ResponseEntity.ok(orderService.updateStatus(id, status));
     }
 }
