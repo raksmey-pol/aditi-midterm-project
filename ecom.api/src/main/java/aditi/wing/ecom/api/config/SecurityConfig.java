@@ -42,6 +42,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/logout", "/api/auth/me").authenticated() // Require JWT for logout
                         .requestMatchers("/api/v1/carts/**").authenticated()                                                        // and profile
                         .requestMatchers("/api/orders/**").authenticated()
+
+                        .requestMatchers("/api/v1/carts/**").authenticated()
+
                         .anyRequest().authenticated() // Everything else requires JWT
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Add JWT filter
