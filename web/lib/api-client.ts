@@ -1,4 +1,4 @@
-// API Configuration
+
 export const API_CONFIG = {
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",
   endpoints: {
@@ -15,6 +15,12 @@ export const API_CONFIG = {
       lowStock: "/api/seller/inventory/low-stock",
       bulkUpdate: "/api/seller/inventory/bulk-update",
       payouts: "/api/seller/payouts",
+    },
+    buyer: {
+      orders: "buyer/orders",
+      wishlist: "buyer/wishlist",
+      profile: "buyer/profile",
+      changePassword: "buyer/change-password",
     },
     products: {
       list: "/api/products",

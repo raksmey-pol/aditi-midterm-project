@@ -1,17 +1,18 @@
-// components/account/OrderItem.tsx
-import Image from "next/image";
+import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 
 type OrderItemProps = {
+  orderId: string; // Added so we know where to link
   image: string;
   title: string;
   description: string;
   price: number;
-  status: "Pending" | "Shipped" | "Delivered" | "Cancelled";
+  status: string; // Changed to string to handle backend statuses
 };
 
 export function OrderItem({
+  orderId,
   image,
   title,
   description,
@@ -19,42 +20,48 @@ export function OrderItem({
   status,
 }: OrderItemProps) {
   return (
-    <div className="space-y-4">
-      <div className="flex gap-4 mt-4">
-        {/* Product Image */}
-        <div className="relative h-20 w-20  flex-shrink-0 overflow-hidden rounded-md border">
-          <Image src={image} alt={title} fill className="object-cover" />
-        </div>
-
-        {/* Product Info */}
-        <div className="flex flex-1 justify-between gap-4">
-          <div className="space-y-1">
-            <p className="font-medium leading-none">{title}</p>
-            <p className="text-sm text-muted-foreground">{description}</p>
-            <p className="text-sm font-semibold">${price.toFixed(2)}</p>
+    <Link href={`/buyer/orders/${orderId}`} className="block group">
+      <div className="space-y-4 transition-colors ">
+        <div className="flex hover:bg-slate-50 rounded-lg p-2 -mx-2 gap-4 mt-2">
+          <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border bg-slate-100 flex items-center justify-center p-3">
+            <img
+              src={image}
+              alt={title}
+              className="object-contain w-full h-full opacity-80"
+            />
           </div>
 
-          {/* Status */}
-          <div className="flex items-start">
-            <Badge variant={statusVariant(status)}>{status}</Badge>
+          <div className="flex flex-1 justify-between gap-4">
+            <div className="space-y-1 mt-1">
+              <p className="font-medium leading-none group-hover:text-blue-600 transition-colors">
+                {title}
+              </p>
+              <p className="text-sm text-muted-foreground">{description}</p>
+              <p className="text-sm font-semibold">${price.toFixed(2)}</p>
+            </div>
+
+            <div className="flex items-start mt-1">
+              <Badge variant={statusVariant(status)}>{status}</Badge>
+            </div>
           </div>
         </div>
+
+        <Separator />
       </div>
-
-      <Separator />
-    </div>
+    </Link>
   );
 }
 
-function statusVariant(status: OrderItemProps["status"]) {
-  switch (status) {
-    case "Delivered":
+// Handles uppercase statuses from Spring Boot
+function statusVariant(status: string) {
+  switch (status?.toUpperCase()) {
+    case "DELIVERED":
       return "default";
-    case "Shipped":
+    case "SHIPPED":
       return "secondary";
-    case "Pending":
+    case "PENDING":
       return "outline";
-    case "Cancelled":
+    case "CANCELLED":
       return "destructive";
     default:
       return "outline";
