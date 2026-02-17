@@ -2,21 +2,31 @@
 
 import Container from "./Container";
 import ProductCard from "./ProductCard";
+
 import Categories from "./Categories";
+import { useCallback } from "react";
 
 
 
 import { useEffect, useState } from "react";
 import { productService, Product } from "@/lib/services/product.service";
 
+
 const ProductList = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
-  useEffect(() => {
+  const fetchProducts = useCallback((category: string) => {
+    setLoading(true);
+    setError(null);
+    const filters = { size: 8 } as any;
+    if (category && category !== "all") {
+      filters.category = category;
+    }
     productService
-      .getProducts({ size: 8 })
+      .getProducts(filters)
       .then((res) => {
         setProducts(res.content);
         setLoading(false);
@@ -27,12 +37,16 @@ const ProductList = () => {
       });
   }, []);
 
+  useEffect(() => {
+    fetchProducts(selectedCategory);
+  }, [selectedCategory, fetchProducts]);
+
 
 
   return (
     <section className="py-12 bg-shop-light-pink">
       <Container className="space-y-8">
-        <Categories />
+        <Categories onSelectCategory={setSelectedCategory} selectedCategory={selectedCategory} />
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-gray-800">Featured Products</h2>
         </div>
@@ -45,13 +59,8 @@ const ProductList = () => {
             {products.map((product) => (
               <ProductCard
                 key={product.id}
-                product={{
-                  ...product,
-                  sizes: ["M"],
-                  colors: ["#888"],
-                  image: { color: product.imageUrl, gray: product.imageUrl, green: product.imageUrl },
-                }}
-              /> 
+                product={product}
+              />
             ))}
           </div>
         )}

@@ -8,7 +8,7 @@ export default function PublicPage() {
     <div className="space-y-12 pb-16">
       <Container>
         <HomeBanner/>
-        </Container>
+      </Container>
       <ProductList/>
     </div>
   );
