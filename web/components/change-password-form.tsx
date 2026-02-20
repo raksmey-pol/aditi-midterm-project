@@ -9,11 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Lock, Eye, EyeOff, Loader2 } from "lucide-react";
-import { useChangePassword } from "@/hooks/useCustomers";
-import {
-  PasswordFormData,
-  passwordFormSchema,
-} from "@/schemas/customer-validation";
+import { useChangePassword } from "@/hooks/useAuth";
+import { PasswordFormData, passwordFormSchema } from "@/schemas/password-validation";
 
 export function PasswordChangeForm() {
   const [showPassword, setShowPassword] = useState({

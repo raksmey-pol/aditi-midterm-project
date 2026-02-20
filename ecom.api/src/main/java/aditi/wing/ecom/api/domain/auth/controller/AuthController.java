@@ -3,6 +3,10 @@ package aditi.wing.ecom.api.domain.auth.controller;
 import java.util.List;
 import java.util.UUID;
 
+import aditi.wing.ecom.api.domain.auth.dto.*;
+import aditi.wing.ecom.api.domain.auth.model.User;
+import aditi.wing.ecom.api.domain.auth.repository.UserRepository;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -16,11 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import aditi.wing.ecom.api.common.util.JwtUtil;
-import aditi.wing.ecom.api.domain.auth.dto.LoginRequestDto;
-import aditi.wing.ecom.api.domain.auth.dto.LoginResponseDto;
-import aditi.wing.ecom.api.domain.auth.dto.RegisterRequestDto;
-import aditi.wing.ecom.api.domain.auth.dto.RoleResponseDto;
-import aditi.wing.ecom.api.domain.auth.dto.UserResponseDto;
 import aditi.wing.ecom.api.domain.auth.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
 
     /**
@@ -147,21 +147,35 @@ public class AuthController {
         }
     }
 
-    /**
-     * Update user profile
-     * PUT /api/auth/users/{userId}
-     */
-    @PutMapping("/users/{userId}")
-    public ResponseEntity<UserResponseDto> updateUser(
-            @PathVariable UUID userId,
-            @RequestBody RegisterRequestDto updateRequest) {
-        try {
-            UserResponseDto response = authService.updateUser(userId, updateRequest);
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
+    @PutMapping("/me")
+    public ResponseEntity<UserResponseDto> updateSelf(
+            HttpServletRequest request,
+            @Valid @RequestBody UpdateProfileRequest updateDto) {
+
+        String email = jwtUtil.getEmailFromRequest(request);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Pass the entity directly to the service
+        return ResponseEntity.ok(authService.updateProfile(user, updateDto));
     }
+
+//    /**
+//     * Update user profile
+//     * PUT /api/auth/users/{userId}
+//     */
+//    This one should be in AdminController instead
+//    @PutMapping("/users/{userId}")
+//    public ResponseEntity<UserResponseDto> updateUser(
+//            @PathVariable UUID userId,
+//            @RequestBody RegisterRequestDto updateRequest) {
+//        try {
+//            UserResponseDto response = authService.updateProfile(userId, updateRequest);
+//            return ResponseEntity.ok(response);
+//        } catch (RuntimeException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+//        }
+//    }
 
     /**
      * Deactivate user account

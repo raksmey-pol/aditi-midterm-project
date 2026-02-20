@@ -1,18 +1,21 @@
-export interface CustomerStats {
-  totalOrders: number;
-  totalSpending: number;
-  wishlistItems: number;
-}
-
-export interface Customer {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
+export type Customer = {
   address: string;
-  avatar?: string;
-  stats: CustomerStats;
-}
+  id: string;
+  email: string;
+  firstName: string;   // <-- Added!
+  lastName: string;    // <-- Added!
+  phone: string;
+  createdAt: string;
+  updatedAt: string;
+  roles: string[];
+  permissions: string[];
+
+  stats?: {
+    orders: number;
+    spent: number;
+    reviews: number;
+  };
+};
 
 export interface ProfileFormData {
   name: string;

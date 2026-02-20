@@ -3,11 +3,8 @@ package aditi.wing.ecom.api.domain.auth.service;
 import java.util.List;
 import java.util.UUID;
 
-import aditi.wing.ecom.api.domain.auth.dto.LoginRequestDto;
-import aditi.wing.ecom.api.domain.auth.dto.LoginResponseDto;
-import aditi.wing.ecom.api.domain.auth.dto.RegisterRequestDto;
-import aditi.wing.ecom.api.domain.auth.dto.RoleResponseDto;
-import aditi.wing.ecom.api.domain.auth.dto.UserResponseDto;
+import aditi.wing.ecom.api.domain.auth.dto.*;
+import aditi.wing.ecom.api.domain.auth.model.User;
 
 public interface AuthService {
 
@@ -34,7 +31,7 @@ public interface AuthService {
     /**
      * Update user profile
      */
-    UserResponseDto updateUser(UUID userId, RegisterRequestDto updateRequest);
+    UserResponseDto updateProfile(User user, UpdateProfileRequest updateRequest);
 
     /**
      * Get public role
