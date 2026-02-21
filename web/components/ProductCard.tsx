@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { ProductType } from "@/constans/types";
+import { Product } from "@/lib/services/product.service";
 import Link from "next/link";
 
-const ProductCard = ({ product }: { product: ProductType }) => {
+const ProductCard = ({ product }: { product: Product }) => {
   return (
     <div className="shadow-lg rounded-lg overflow-hidden ">
 
@@ -12,7 +12,7 @@ const ProductCard = ({ product }: { product: ProductType }) => {
       <Link href={`/product/${product.id}`}>
         <div className="relative aspect-w-1 aspect-h-1 w-full overflow-hidden group">
           <Image
-            src={product.image.color}
+            src={product.imageUrl}
             alt={product.name}
             fill
             className="object-cover group-hover:scale-110 transition duration-500"
@@ -24,29 +24,7 @@ const ProductCard = ({ product }: { product: ProductType }) => {
       <div className="flex flex-col gap-4 p-4">
         <h1 className="font-medium">{product.name}</h1>
         <p className="text-sm text-gray-500">{product.description}</p>
-        {/* PRODUCT TYPES */}
-        <div className="flex items-center gap-4 text-xs ">
-            {/* SIZES */}
-            <div className="flex flex-col gap-1">
-              <span className="text-gray-500">Size</span>
-              <select name="size" id="size" className="ring ring-gray-300 rounded-md px-2 py-1">
-                {product.sizes.map((size) => (
-                  <option key={size} value={size}>{size}</option>
-                ))}
-              </select>
-            </div>
-            {/* COLORS */}
-            <div className="flex flex-col gap-1">
-              <span className="text-gray-500">Color</span>
-              <div className="flex items-center gap-2">
-                {product.colors.map((color) => (
-                    <div key={color} className="w-4 h-4 rounded-full border border-gray-300" style={{ backgroundColor: color }}>
-                        
-                    </div>
-                ))}
-              </div>
-            </div>
-        </div>
+        {/* PRODUCT TYPES (removed, not in backend model) */}
         {/* PRICE AND CART BUTTON */}
         <div className="flex justify-between items-center">
           <span className="font-bold">${product.price}</span>

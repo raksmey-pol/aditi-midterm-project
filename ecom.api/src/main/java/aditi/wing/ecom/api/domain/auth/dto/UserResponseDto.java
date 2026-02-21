@@ -16,6 +16,8 @@ public class UserResponseDto {
     private String email;
     private String firstName;
     private String lastName;
+    private String address;
+    private String phone;
     private Instant createdAt;
     private Instant updatedAt;
 
