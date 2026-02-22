@@ -5,7 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { QueryProvider } from "@/components/QueryProvider";
-
+import { CartProvider } from "@/context/cartcontext";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -26,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
+        <CartProvider>
         <div className="flex flex-col min-h-screen">
           <Navbar />
           <main className="flex-1">
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </main>
           <Footer />
         </div>
+        </CartProvider>
       </body>
     </html>
   );
