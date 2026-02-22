@@ -15,6 +15,7 @@ import { Spinner } from "./ui/spinner";
 export default function CustomerProfile() {
   const { data: customer, isLoading, isError } = useAuth();
 
+  // 1. Loading State (Your exact style)
   if (isLoading) {
     return (
       <div className="min-h-screen flex justify-center items-center">
@@ -23,6 +24,7 @@ export default function CustomerProfile() {
     );
   }
 
+  // 2. Error State (Your exact style)
   if (isError || !customer) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 md:p-8">
@@ -43,6 +45,7 @@ export default function CustomerProfile() {
     );
   }
 
+  // 3. Main Dashboard (Your exact style)
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
