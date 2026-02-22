@@ -174,11 +174,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public UserResponseDto updateProfile(User user, UpdateProfileRequest request) {
-        // 1. Update only the allowed profile fields
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
         user.setPhone(request.phone());
-        user.setAddress(request.address());
 
         User updatedUser = userRepository.save(user);
 
@@ -190,6 +188,20 @@ public class AuthServiceImpl implements AuthService {
         userDto.setPermissions(new HashSet<>(permissionNames));
 
         return userDto;
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(User user, ChangePasswordRequest request) {
+
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPasswordHash())) {
+            throw new IllegalArgumentException("Incorrect current password.");
+        }
+
+        String hashedNewPassword = passwordEncoder.encode(request.newPassword());
+
+        user.setPasswordHash(hashedNewPassword);
+        userRepository.save(user);
     }
 
     /**

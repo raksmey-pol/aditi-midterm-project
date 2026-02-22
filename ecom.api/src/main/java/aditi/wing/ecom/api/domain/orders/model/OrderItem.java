@@ -34,6 +34,9 @@ public class OrderItem {
     @Column(nullable = false)
     private String productName;
 
+    @Column(name = "image_url")
+    private String productImageUrl;
+
     @Column(nullable = false)
     private int quantity;
 

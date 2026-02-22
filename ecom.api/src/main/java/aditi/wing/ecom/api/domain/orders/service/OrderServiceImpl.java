@@ -1,17 +1,25 @@
 package aditi.wing.ecom.api.domain.orders.service;
 
+import aditi.wing.ecom.api.domain.address.model.Address;
+import aditi.wing.ecom.api.domain.address.repository.AddressRepository;
 import aditi.wing.ecom.api.domain.auth.model.User;
 import aditi.wing.ecom.api.domain.auth.repository.UserRepository;
+import aditi.wing.ecom.api.domain.orders.dto.OrderItemRequest;
 import aditi.wing.ecom.api.domain.orders.dto.OrderRequest;
 import aditi.wing.ecom.api.domain.orders.dto.OrderResponse;
 import aditi.wing.ecom.api.domain.orders.enums.OrderStatus;
 import aditi.wing.ecom.api.domain.orders.mapper.OrderMapper;
 import aditi.wing.ecom.api.domain.orders.model.Order;
+import aditi.wing.ecom.api.domain.orders.model.OrderItem;
 import aditi.wing.ecom.api.domain.orders.repository.OrderRepository;
+import aditi.wing.ecom.api.domain.seller.model.Product;
+import aditi.wing.ecom.api.domain.seller.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,20 +30,87 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final UserRepository userRepository;
+    private final AddressRepository addressRepository;
+    private final ProductRepository productRepository;
 
     @Override
-    @Transactional
-    public OrderResponse createOrder(OrderRequest request, String userEmail) {
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found: " + userEmail));
+    @Transactional // CRITICAL: If anything fails, the database rolls back completely!
+    public OrderResponse createOrder(String userEmail, OrderRequest request) {
 
-        Order order = orderMapper.toEntity(request);
+        // 1. Verify Buyer
+        User buyer = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Buyer not found"));
 
-        order.setBuyerId(user.getId());
+        // 2. Fetch and Verify Address
+        Address address = addressRepository.findById(request.shippingAddressId())
+                .orElseThrow(() -> new IllegalArgumentException("Address not found"));
+
+        if (!address.getUser().getId().equals(buyer.getId())) {
+            throw new IllegalArgumentException("You can only ship to your own saved addresses.");
+        }
+
+        // 3. Initialize Order
+        Order order = new Order();
+        order.setBuyerId(buyer.getId());
         order.setStatus(OrderStatus.PENDING);
 
-        Order savedOrder = orderRepository.save(order);
-        return orderMapper.toResponse(savedOrder);
+        String addressSnapshot = String.format("%s, %s, %s, %s, %s %s",
+                address.getRecipientName(),
+                address.getPhoneNumber(),
+                address.getStreet1(),
+                address.getCity(),
+                address.getState(),
+                address.getCountry());
+
+        order.setShippingAddress(addressSnapshot);
+
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        List<OrderItem> orderItems = new ArrayList<>();
+        List<Product> productsToUpdate = new ArrayList<>();
+
+        // 4. Process Items Securely
+        for (OrderItemRequest itemRequest : request.items()) {
+
+            Product product = productRepository.findById(itemRequest.productId())
+                    .orElseThrow(() -> new IllegalArgumentException("Product not found: " + itemRequest.productId()));
+
+            // Stock Check
+            if (product.getStockQuantity() < itemRequest.quantity()) {
+                throw new IllegalArgumentException("Insufficient stock for: " + product.getName() +
+                        ". Only " + product.getStockQuantity() + " left.");
+            }
+
+            // Deduct Stock
+            product.setStockQuantity(product.getStockQuantity() - itemRequest.quantity());
+            productsToUpdate.add(product);
+
+            // Build Item linking to Seller
+            OrderItem item = new OrderItem();
+            item.setOrder(order);
+            item.setProductId(product.getId());
+            item.setSellerId(product.getSellerId());
+
+            item.setProductName(product.getName());
+            item.setProductImageUrl(product.getImageUrl());
+
+            item.setQuantity(itemRequest.quantity());
+            item.setPrice(product.getPrice());
+
+            // Calculate total
+            BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(itemRequest.quantity()));
+            totalAmount = totalAmount.add(itemTotal);
+
+            orderItems.add(item);
+        }
+
+        // 5. Finalize and Save
+        order.setItems(orderItems);
+        order.setTotalAmount(totalAmount);
+
+        orderRepository.save(order);
+        productRepository.saveAll(productsToUpdate);
+
+        return orderMapper.toResponse(order);
     }
 
     @Override

@@ -22,7 +22,7 @@ const getInitials = (name?: string) => {
 export function CustomerHeader({ customer }: CustomerHeaderProps) {
   const fullName = `${customer.firstName} ${customer.lastName}`;
   return (
-    <Card className="border-0 shadow-xl bg-white/80 backdrop-blur">
+    <Card className="border-0 bg-white/80 backdrop-blur">
       <CardHeader className="pb-4">
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
           <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
