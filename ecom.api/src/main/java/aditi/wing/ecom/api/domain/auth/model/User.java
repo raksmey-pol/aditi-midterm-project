@@ -36,6 +36,10 @@ public class User extends IdBasedModel{
     @Column(length = 100)
     private String lastName;
 
+    // Will change later
+    @Column(nullable = false)
+    private String address;
+
     @Column(length = 20)
     private String phone;
 
