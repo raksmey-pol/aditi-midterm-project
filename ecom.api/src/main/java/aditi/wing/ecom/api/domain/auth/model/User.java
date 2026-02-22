@@ -39,6 +39,8 @@ public class User extends IdBasedModel{
     @Column(length = 20)
     private String phone;
 
+    private String address;
+
     @Builder.Default
     @Column(nullable = false)
     private boolean isActive = true;

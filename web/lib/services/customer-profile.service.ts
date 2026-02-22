@@ -1,5 +1,5 @@
 import { API_CONFIG } from "@/lib/api-client";
-import { Customer, ProfileFormData, PasswordFormData } from "../types/customer";
+import { Customer, PasswordFormData } from "../types/customer";
 
 export type UpdateProfilePayload = {
   firstName: string;

@@ -29,7 +29,6 @@ export default function CustomerProfile() {
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-center h-96">
             <div className="text-center">
-              <div className="text-red-500 text-4xl mb-4">⚠️</div>
               <h2 className="text-xl font-semibold text-slate-900">
                 Failed to load profile
               </h2>
