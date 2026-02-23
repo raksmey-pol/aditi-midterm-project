@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import aditi.wing.ecom.api.domain.auth.dto.*;
 import aditi.wing.ecom.api.domain.auth.model.User;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface AuthService {
 
@@ -32,6 +33,11 @@ public interface AuthService {
      * Update user profile
      */
     UserResponseDto updateProfile(User user, UpdateProfileRequest updateRequest);
+
+    /**
+     * Change user password
+     */
+    void changePassword(User user, ChangePasswordRequest request);
 
     /**
      * Get public role

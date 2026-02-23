@@ -18,6 +18,7 @@ export const useUpdateProfile = () => {
     mutationFn: (data: UpdateProfilePayload) => updateProfile(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+      
     },
   });
 };

@@ -33,8 +33,8 @@ public class Order {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
-    // Single address reference is sufficient for MVP
-    private UUID shippingAddressId;
+    @Column(name = "shipping_address", columnDefinition = "TEXT")
+    private String shippingAddress;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items;
