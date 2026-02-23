@@ -1,10 +1,10 @@
 export type Customer = {
-  address: string;
   id: string;
   email: string;
   firstName: string;   // <-- Added!
   lastName: string;    // <-- Added!
   phone: string;
+  address?: string;
   createdAt: string;
   updatedAt: string;
   roles: string[];

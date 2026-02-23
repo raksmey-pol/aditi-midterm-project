@@ -1,12 +1,8 @@
 package aditi.wing.ecom.api.domain.address.model;
 
-
+import aditi.wing.ecom.api.domain.auth.model.User;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -17,48 +13,41 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class Address {
+
     @Id
-    @GeneratedValue
-    @Column(columnDefinition = "UUID",updatable = false,nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    private String label;
+
+    @Column(name = "is_default")
+    private boolean isDefault;
+
+    @Column(name = "recipient_name", nullable = false)
+    private String recipientName;
+
+    @Column(name = "phone_number", nullable = false)
+    private String phoneNumber;
+
+    @Column(name = "street_1", nullable = false)
+    private String street1;
+
+    @Column(name = "street_2")
+    private String street2;
+
     @Column(nullable = false)
-    private UUID userId;
-
-    @Column(length = 20)
-    private String addressType; // "shipping" or "billing"
-
-    @Column(nullable = false, length = 200)
-    private String fullName;
-
-    @Column(length = 20)
-    private String phone;
-
-    @Column(nullable = false, length = 255)
-    private String addressLine1;
-
-    @Column(length = 255)
-    private String addressLine2;
-
-    @Column(nullable = false, length = 100)
     private String city;
 
-    @Column(length = 100)
+    @Column(nullable = false)
     private String state;
 
-    @Column(length = 20)
-    private String postalCode;
-
-    @Column(nullable = false, length = 100)
-    private String country;
+    @Column(name = "zip_code")
+    private String zipCode;
 
     @Column(nullable = false)
-    private boolean isDefault = false;
+    private String country;
 
-    @CreationTimestamp
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

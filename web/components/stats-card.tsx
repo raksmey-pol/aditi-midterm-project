@@ -1,71 +1,70 @@
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShoppingBag, DollarSign, Heart } from "lucide-react";
 import { CustomerStats } from "@/lib/types/customer";
+
 interface StatsCardsProps {
   stats: CustomerStats;
 }
 
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount);
-};
+const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
+    amount,
+  );
+
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  icon: React.ReactNode;
+  iconClassName?: string;
+}
+
+function StatCard({ title, value, icon, iconClassName }: StatCardProps) {
+  return (
+    <Card className="relative overflow-hidden transition-shadow">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {title}
+        </CardTitle>
+        <div
+          className={`flex h-9 w-9 items-center justify-center rounded-full ${iconClassName}`}>
+          {icon}
+        </div>
+      </CardHeader>
+      <CardContent>
+        <p className="text-2xl font-bold tracking-tight">{value}</p>
+      </CardContent>
+    </Card>
+  );
+}
 
 export function StatsCards({ stats }: StatsCardsProps) {
+  const cards: StatCardProps[] = [
+    {
+      title: "Total Orders",
+      value: stats.totalOrders,
+      icon: <ShoppingBag className="h-4 w-4 text-blue-600" />,
+      iconClassName: "bg-blue-50 dark:bg-blue-950",
+    },
+    {
+      title: "Total Spending",
+      value: formatCurrency(stats.totalSpending),
+      icon: <DollarSign className="h-4 w-4 text-emerald-600" />,
+      iconClassName: "bg-emerald-50 dark:bg-emerald-950",
+    },
+    {
+      title: "Wishlist Items",
+      value: stats.wishlistItems,
+      icon: <Heart className="h-4 w-4 text-rose-600" />,
+      iconClassName: "bg-rose-50 dark:bg-rose-950",
+    },
+  ];
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {/* Total Orders */}
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-blue-100 text-sm font-medium">Total Orders</p>
-              <p className="text-4xl font-bold mt-2">{stats.totalOrders}</p>
-            </div>
-            <div className="h-16 w-16 bg-white/20 rounded-full flex items-center justify-center">
-              <ShoppingBag className="h-8 w-8" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Total Spending */}
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-emerald-500 to-emerald-600 text-white">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-emerald-100 text-sm font-medium">
-                Total Spending
-              </p>
-              <p className="text-4xl font-bold mt-2">
-                {formatCurrency(stats.totalSpending)}
-              </p>
-            </div>
-            <div className="h-16 w-16 bg-white/20 rounded-full flex items-center justify-center">
-              <DollarSign className="h-8 w-8" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Wishlist Items */}
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-pink-500 to-pink-600 text-white">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-pink-100 text-sm font-medium">
-                Wishlist Items
-              </p>
-              <p className="text-4xl font-bold mt-2">{stats.wishlistItems}</p>
-            </div>
-            <div className="h-16 w-16 bg-white/20 rounded-full flex items-center justify-center">
-              <Heart className="h-8 w-8" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      {cards.map((card) => (
+        <StatCard key={card.title} {...card} />
+      ))}
     </div>
   );
 }

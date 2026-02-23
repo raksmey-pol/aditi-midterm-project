@@ -1,6 +1,7 @@
 package aditi.wing.ecom.api.domain.auth.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import aditi.wing.ecom.api.domain.auth.dto.*;
@@ -158,6 +159,32 @@ public class AuthController {
 
         // Pass the entity directly to the service
         return ResponseEntity.ok(authService.updateProfile(user, updateDto));
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            HttpServletRequest request,
+            @Valid @RequestBody ChangePasswordRequest passwordRequest) {
+
+        try {
+            String email = jwtUtil.getEmailFromRequest(request);
+            if (email == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "Invalid or missing token"));
+            }
+
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            authService.changePassword(user, passwordRequest);
+
+            return ResponseEntity.ok(Map.of("message", "Password changed successfully"));
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("message", "An error occurred"));
+        }
     }
 
 //    /**

@@ -22,11 +22,11 @@ public class ProductSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        if (productRepository.count() == 0) { // Only seed if table is empty
+        if (productRepository.count() == 0) {
             Product p1 = Product.builder()
                     .sellerId(UUID.fromString("ba8bdcee-db9b-4c17-806e-0f2c61058b8b"))
                     .name("Wireless Mouse")
-                    .imageUrl("https://cdn-icons-png.flaticon.com/128/1786/1786973.png")
+                    .imageUrl("https://placehold.net/600x600.png")
                     .description("Ergonomic wireless mouse with 2-year battery life")
                     .price(new BigDecimal("29.99"))
                     .stockQuantity(100)
@@ -39,6 +39,7 @@ public class ProductSeeder implements CommandLineRunner {
             Product p2 = Product.builder()
                     .sellerId(UUID.fromString("ba8bdcee-db9b-4c17-806e-0f2c61058b8b"))
                     .name("Mechanical Keyboard")
+                    .imageUrl("https://placehold.net/600x600.png")
                     .description("RGB backlit mechanical keyboard with blue switches")
                     .price(new BigDecimal("79.99"))
                     .stockQuantity(50)
@@ -51,6 +52,7 @@ public class ProductSeeder implements CommandLineRunner {
             Product p3 = Product.builder()
                     .sellerId(UUID.fromString("ba8bdcee-db9b-4c17-806e-0f2c61058b8b"))
                     .name("Notebook")
+                    .imageUrl("https://placehold.net/600x600.png")
                     .description("Hardcover notebook with 200 pages")
                     .price(new BigDecimal("9.99"))
                     .stockQuantity(200)

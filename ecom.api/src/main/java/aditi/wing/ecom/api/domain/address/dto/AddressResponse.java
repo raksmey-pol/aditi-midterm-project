@@ -1,20 +1,16 @@
 package aditi.wing.ecom.api.domain.address.dto;
-
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record AddressResponse(
         UUID id,
-        UUID userId,
-        String addressType,
-        String fullName,
-        String phone,
-        String addressLine1,
-        String addressLine2,
+        String label,
+        String recipientName,
+        String phoneNumber,
+        String street1,
+        String street2,
         String city,
         String state,
-        String postalCode,
+        String zipCode,
         String country,
-        boolean isDefault,
-        LocalDateTime createdAt
+        boolean isDefault
 ) {}
