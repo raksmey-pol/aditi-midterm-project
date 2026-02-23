@@ -8,12 +8,14 @@ interface CartContextType {
   cart: CartResponse | null;
   itemCount: number;
   refetch: () => void;
+  clearCartLocally: () => void; 
 }
 
 const CartContext = createContext<CartContextType>({
   cart: null,
   itemCount: 0,
   refetch: () => {},
+  clearCartLocally: () => {}, 
 });
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
@@ -23,10 +25,14 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const refetch = () => {
     const userId = userIdRef.current;
     if (!userId) return;
-    cartService.getCart(userId)
+    cartService
+      .getCart(userId)
       .then(setCart)
       .catch(() => {});
   };
+  const clearCartLocally = () => {
+  setCart((prev) => prev ? { ...prev, items: [], totalPrice: 0 } : prev);
+};
 
   useEffect(() => {
     const user = localStorage.getItem("user");
@@ -40,10 +46,11 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     } catch {}
   }, []);
 
-  const itemCount = cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
+  const itemCount =
+    cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
 
   return (
-    <CartContext.Provider value={{ cart, itemCount, refetch }}>
+    <CartContext.Provider value={{ cart, itemCount, refetch , clearCartLocally }}>
       {children}
     </CartContext.Provider>
   );
