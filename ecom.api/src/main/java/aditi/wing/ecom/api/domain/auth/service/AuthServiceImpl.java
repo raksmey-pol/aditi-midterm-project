@@ -4,16 +4,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
+import aditi.wing.ecom.api.domain.auth.dto.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import aditi.wing.ecom.api.common.middleware.JwtMiddleware;
-import aditi.wing.ecom.api.domain.auth.dto.LoginRequestDto;
-import aditi.wing.ecom.api.domain.auth.dto.LoginResponseDto;
-import aditi.wing.ecom.api.domain.auth.dto.RegisterRequestDto;
-import aditi.wing.ecom.api.domain.auth.dto.RoleResponseDto;
-import aditi.wing.ecom.api.domain.auth.dto.UserResponseDto;
 import aditi.wing.ecom.api.domain.auth.mapper.RoleMapper;
 import aditi.wing.ecom.api.domain.auth.mapper.UserMapper;
 import aditi.wing.ecom.api.domain.auth.model.Role;
@@ -175,16 +171,14 @@ public class AuthServiceImpl implements AuthService {
         return userDto;
     }
 
-    /**
-     * Update user profile
-     */
     @Override
     @Transactional
-    public UserResponseDto updateUser(UUID userId, RegisterRequestDto updateRequest) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public UserResponseDto updateProfile(User user, UpdateProfileRequest request) {
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
+        user.setPhone(request.phone());
+        user.setAddress(request.address());
 
-        userMapper.updateUserFromDto(updateRequest, user);
         User updatedUser = userRepository.save(user);
 
         var roleNames = userRoleRepository.findRoleNamesByUserId(user.getId());
@@ -195,6 +189,20 @@ public class AuthServiceImpl implements AuthService {
         userDto.setPermissions(new HashSet<>(permissionNames));
 
         return userDto;
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(User user, ChangePasswordRequest request) {
+
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPasswordHash())) {
+            throw new IllegalArgumentException("Incorrect current password.");
+        }
+
+        String hashedNewPassword = passwordEncoder.encode(request.newPassword());
+
+        user.setPasswordHash(hashedNewPassword);
+        userRepository.save(user);
     }
 
     /**

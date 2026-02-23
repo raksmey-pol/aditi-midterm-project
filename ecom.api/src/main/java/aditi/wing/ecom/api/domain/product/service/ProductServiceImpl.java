@@ -58,16 +58,14 @@ public class ProductServiceImpl implements ProductService {
                                 category.toLowerCase()));
             }
 
-            // Filter by minimum price
             if (minPrice != null) {
                 predicate = criteriaBuilder.and(predicate,
-                        criteriaBuilder.greaterThanOrEqualTo(root.get("price"), minPrice));
+                        criteriaBuilder.greaterThanOrEqualTo(root.<BigDecimal>get("price"), minPrice));
             }
 
-            // Filter by maximum price
             if (maxPrice != null) {
                 predicate = criteriaBuilder.and(predicate,
-                        criteriaBuilder.lessThanOrEqualTo(root.get("price"), maxPrice));
+                        criteriaBuilder.lessThanOrEqualTo(root.<BigDecimal>get("price"), maxPrice));
             }
 
             return predicate;

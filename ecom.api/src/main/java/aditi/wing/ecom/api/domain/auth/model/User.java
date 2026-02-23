@@ -3,6 +3,7 @@ package aditi.wing.ecom.api.domain.auth.model;
 import java.time.LocalDateTime;
 
 import aditi.wing.ecom.api.common.base.IdBasedModel;
+import aditi.wing.ecom.api.domain.address.model.Address;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.PrePersist;
@@ -37,6 +38,8 @@ public class User extends IdBasedModel{
 
     @Column(length = 20)
     private String phone;
+
+    private String address;
 
     @Builder.Default
     @Column(nullable = false)

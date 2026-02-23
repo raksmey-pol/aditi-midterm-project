@@ -9,7 +9,9 @@ interface CustomerHeaderProps {
   customer: Customer;
 }
 
-const getInitials = (name: string) => {
+const getInitials = (name?: string) => {
+  if (!name) return "";
+
   return name
     .split(" ")
     .map((n) => n[0])
@@ -18,26 +20,26 @@ const getInitials = (name: string) => {
 };
 
 export function CustomerHeader({ customer }: CustomerHeaderProps) {
+  const fullName = `${customer.firstName} ${customer.lastName}`;
   return (
-    <Card className="border-0 shadow-xl bg-white/80 backdrop-blur">
+    <Card className="border-0 bg-white/80 backdrop-blur">
       <CardHeader className="pb-4">
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
           <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
-            <AvatarImage src={customer.avatar} alt={customer.name} />
             <AvatarFallback className="text-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
-              {getInitials(customer.name)}
+              {getInitials(fullName)}
             </AvatarFallback>
           </Avatar>
 
           <div className="flex-1 space-y-2">
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold text-slate-900">
-                {customer.name}
+                {fullName}
               </h1>
               <Badge
                 variant="secondary"
                 className="bg-blue-100 text-blue-700 hover:bg-blue-200">
-                Customer
+                {customer.roles}
               </Badge>
             </div>
             <div className="flex flex-col gap-2 text-slate-600">

@@ -29,11 +29,11 @@ const ProductCard = ({ product }: { product: Product }) => {
   });
   const { addItem } = useCart(userId);
 
+
   const imageSrc =
     typeof product.imageUrl === "string" && product.imageUrl.trim() !== ""
       ? product.imageUrl
       : "/images/placeholder.png";
-
 const handleAddToCart = async () => {
   if (!userId) {
     router.push("/login");
@@ -42,8 +42,8 @@ const handleAddToCart = async () => {
 
   setAdding(true);
   try {
-    await addItem(product.id, 1); 
-    refetch(); 
+    await addItem(product.id, 1); // call Spring Boot
+    refetch(); // 🔥 update frontend cart state
   } catch (err) {
     console.error("Failed to add to cart", err);
   } finally {
@@ -57,7 +57,10 @@ const handleAddToCart = async () => {
       <Link href={`/products/${encodeURIComponent(product.id)}`}>
         <div className="relative w-full aspect-square overflow-hidden group bg-gray-100">
           <Image
+
             src={imageSrc}
+
+            src={product.imageUrl}
             alt={product.name}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
