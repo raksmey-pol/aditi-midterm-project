@@ -12,6 +12,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { productService } from "@/lib/services/product.service";
+import AddToCartButton from "@/components/AddToCartButton";
 
 interface ProductPageProps {
 	params: Promise<{ slug: string }> | { slug: string };
@@ -102,6 +103,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
 								<p className="font-medium">{product.category}</p>
 							</div>
 						</div>
+
+						<AddToCartButton productId={product.id} inStock={product.inStock} />
 					</CardContent>
 				</Card>
 			</div>

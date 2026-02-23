@@ -57,10 +57,7 @@ const handleAddToCart = async () => {
       <Link href={`/products/${encodeURIComponent(product.id)}`}>
         <div className="relative w-full aspect-square overflow-hidden group bg-gray-100">
           <Image
-
             src={imageSrc}
-
-            src={product.imageUrl}
             alt={product.name}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
