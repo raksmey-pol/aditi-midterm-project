@@ -37,7 +37,7 @@ public class CartResponse {
 
         return CartResponse.builder()
                 .cartId(cart.getId())
-                .userId(cart.getId())
+                .userId(cart.getUser().getId())
                 .items(itemResponses)
                 .totalItems(totalItems)
                 .totalPrice(totalPrice)

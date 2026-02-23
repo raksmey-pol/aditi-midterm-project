@@ -40,8 +40,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/products/**").permitAll() // Public product endpoints
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") // Admin only
                         .requestMatchers("/api/auth/logout", "/api/auth/me").authenticated() // Require JWT for logout
-                        .requestMatchers("/api/v1/carts/**").authenticated()                                                        // and profile
+                        .requestMatchers("/api/v1/carts/**").permitAll()                                                        // and profile
                         .requestMatchers("/api/orders/**").authenticated()
+                        .requestMatchers("/api/addresses/**").authenticated()
                         .anyRequest().authenticated() // Everything else requires JWT
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Add JWT filter

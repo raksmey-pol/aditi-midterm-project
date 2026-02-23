@@ -84,12 +84,18 @@ public class CartServiceImpl implements CartService {
 
         return cartRepository.save(cart);
     }
-
     @Override
     public Cart getCartByUserId(UUID userId) {
-        // FIX: removed unnecessary (Cart) cast
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+
         return cartRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Cart not found for user: " + userId));
+                .orElseGet(() -> {
+                    Cart newCart = new Cart();
+                    newCart.setUser(user);
+                    newCart.setCreatedAt(LocalDateTime.now());
+                    return cartRepository.save(newCart);
+                });
     }
 
     @Override
