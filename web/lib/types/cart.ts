@@ -15,16 +15,17 @@ export interface CartItem {
   cartItemId: string;
   productId: string;
   productName: string;
-  imageUrl: string;    // ← add this
-  category: string;    // ← add this
-  unitPrice: number;   // ← also fix this! backend sends "unitPrice" not "price"
+  sellerId: string; // ← is this here?
+  imageUrl: string; // ← add this
+  category: string; // ← add this
+  unitPrice: number; // ← also fix this! backend sends "unitPrice" not "price"
   quantity: number;
   subtotal: number;
 }
 
 export interface CartResponse {
-  cartId: string;      // UUID
-  userId: string;      // UUID
+  cartId: string; // UUID
+  userId: string; // UUID
   items: CartItem[];
   totalPrice: number;
 }
