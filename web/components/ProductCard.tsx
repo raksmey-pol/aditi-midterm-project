@@ -5,17 +5,15 @@ import { Product } from "@/lib/services/product.service";
 import Link from "next/link";
 import { useState } from "react";
 import { useCart } from "@/hooks/useCart";
-import { useRouter } from "next/navigation"; // ← add this
+import { useRouter } from "next/navigation";
 import { useCartContext } from "@/context/cartcontext";
+import { Heart } from "lucide-react"; // ← add this for the icon
+import { useWishlist } from "@/hooks/useWishlist"; // ← add this for wishlist logic
 
 const ProductCard = ({ product }: { product: Product }) => {
-  const router = useRouter(); // ← add this
+  const router = useRouter();
   const [adding, setAdding] = useState(false);
   const { refetch } = useCartContext();
-  // const [userId] = useState<string>(() => {
-  //   if (typeof window === "undefined") return "";
-  //   return localStorage.getItem("userId") ?? "";
-  // });
 
   const [userId] = useState<string>(() => {
     if (typeof window === "undefined") return "";
@@ -27,30 +25,68 @@ const ProductCard = ({ product }: { product: Product }) => {
       return "";
     }
   });
+
   const { addItem } = useCart(userId);
 
-const handleAddToCart = async () => {
-  if (!userId) {
-    router.push("/login");
-    return;
-  }
+  const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
 
-  setAdding(true);
-  try {
-    await addItem(product.id, 1); // call Spring Boot
-    refetch(); // 🔥 update frontend cart state
-  } catch (err) {
-    console.error("Failed to add to cart", err);
-  } finally {
-    setAdding(false);
-  }
-};
+  const isFavorited = wishlistItems?.some((item) => item.id === product.id);
+
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevents the Link from navigating when clicking the heart
+    e.stopPropagation();
+
+    if (!userId) {
+      router.push("/login");
+      return;
+    }
+
+    if (isFavorited) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist(product.id);
+    }
+  };
+  // ----------------------------
+
+  const handleAddToCart = async () => {
+    if (!userId) {
+      router.push("/login");
+      return;
+    }
+
+    setAdding(true);
+    try {
+      await addItem(product.id, 1); // call Spring Boot
+      refetch(); 
+    } catch (err) {
+      console.error("Failed to add to cart", err);
+    } finally {
+      setAdding(false);
+    }
+  };
 
   return (
-    <div className="shadow-lg rounded-lg overflow-hidden">
+    // Added 'relative' to the parent div so the heart button positions correctly inside the card
+    <div className="shadow-lg rounded-lg overflow-hidden relative">
+      {/* --- ADDED FAVORITE BUTTON --- */}
+      <button
+        onClick={handleToggleWishlist}
+        className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/80 backdrop-blur-sm shadow-sm hover:bg-white transition-all duration-300"
+        aria-label="Toggle Wishlist">
+        <Heart
+          className={`w-5 h-5 transition-colors ${
+            isFavorited
+              ? "fill-red-500 text-red-500" // Filled red if favorited
+              : "text-gray-500 hover:text-red-500" // Outline if not
+          }`}
+        />
+      </button>
+      {/* ----------------------------- */}
+
       {/* Product Image */}
       <Link href={`/product/${product.id}`}>
-        <div className="relative aspect-w-1 aspect-h-1 w-full overflow-hidden group">
+        <div className="relative aspect-square w-full overflow-hidden group">
           <Image
             src={product.imageUrl}
             alt={product.name}
@@ -71,8 +107,7 @@ const handleAddToCart = async () => {
           <button
             onClick={handleAddToCart}
             disabled={adding}
-            className="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+            className="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
             {adding ? "Adding..." : "Add to Cart"}
           </button>
         </div>

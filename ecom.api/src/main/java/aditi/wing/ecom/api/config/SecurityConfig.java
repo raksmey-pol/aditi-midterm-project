@@ -42,6 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/change-password").authenticated()
                         .requestMatchers("/api/auth/me/**").authenticated()
                         .requestMatchers("/api/addresses/**").authenticated()
+                        .requestMatchers("/api/wishlist/**").authenticated()
                         .requestMatchers("/api/auth/logout", "/api/auth/me").authenticated() // Require JWT for logout
                         .requestMatchers("/api/v1/carts/**").permitAll()                                                        // and profile
                         .requestMatchers("/api/orders/**").authenticated()
