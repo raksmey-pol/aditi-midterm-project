@@ -1,11 +1,12 @@
 export interface AddressForm {
-  fullName: string;
-  phone: string;
-  addressLine1: string;
-  addressLine2: string;
+  label: string;         
+  recipientName: string;
+  phoneNumber: string;
+  street1: string;
+  street2: string;
   city: string;
   state: string;
-  postalCode: string;
+  zipCode: string;
   country: string;
 }
 

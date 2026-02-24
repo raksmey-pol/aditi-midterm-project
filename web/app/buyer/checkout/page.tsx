@@ -32,7 +32,7 @@ const SHIPPING_METHODS: ShippingMethod[] = [
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { cart, refetch, clearCartLocally } = useCartContext();
+  const { cart, clearCartLocally } = useCartContext();
 
   const [state, setState] = useState<CheckoutState>({
     step: 1,
@@ -63,8 +63,15 @@ export default function CheckoutPage() {
             Authorization: `Bearer ${getToken()}`,
           },
           body: JSON.stringify({
-            ...addressData,
-            addressType: "shipping",
+            label: addressData.label,
+            recipientName: addressData.recipientName,
+            phoneNumber: addressData.phoneNumber,
+            street1: addressData.street1,
+            street2: addressData.street2,
+            city: addressData.city,
+            state: addressData.state,
+            zipCode: addressData.zipCode,
+            country: addressData.country,
             isDefault: false,
           }),
         },
@@ -80,8 +87,9 @@ export default function CheckoutPage() {
         addressId: saved.id,
         shippingMethod,
       }));
+      // ✅ correct - shows error message, stays on step 1
     } catch {
-      router.push("/buyer/checkout/failed");
+      setError("Failed to save address. Please try again.");
     } finally {
       setLoading(false);
     }

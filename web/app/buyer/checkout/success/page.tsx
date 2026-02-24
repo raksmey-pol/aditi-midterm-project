@@ -9,13 +9,14 @@ interface LastOrder {
   orderId: string;
   items: OrderItem[];
   address: {
-    fullName: string;
-    phone: string;
-    addressLine1: string;
-    addressLine2?: string;
+    label: string;
+    recipientName: string;
+    phoneNumber: string;
+    street1: string;
+    street2?: string;
     city: string;
     state?: string;
-    postalCode: string;
+    zipCode: string;
     country: string;
   };
   shippingMethod: {
@@ -106,12 +107,12 @@ export default function CheckoutSuccessPage() {
           <div class="info-grid">
             <div class="info-block">
               <h4>Ship To</h4>
-              <p><strong>${order.address.fullName}</strong></p>
-              <p>${order.address.addressLine1}</p>
-              ${order.address.addressLine2 ? `<p>${order.address.addressLine2}</p>` : ""}
-              <p>${order.address.city}${order.address.state ? `, ${order.address.state}` : ""} ${order.address.postalCode}</p>
-              <p>${order.address.country}</p>
-              <p>${order.address.phone}</p>
+              <p><strong>${order.address.recipientName}</strong></p>
+<p>${order.address.street1}</p>
+${order.address.street2 ? `<p>${order.address.street2}</p>` : ""}
+<p>${order.address.city}${order.address.state ? `, ${order.address.state}` : ""} ${order.address.zipCode}</p>
+<p>${order.address.country}</p>
+<p>${order.address.phoneNumber}</p>
             </div>
             <div class="info-block">
               <h4>Order Info</h4>
