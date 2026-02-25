@@ -9,9 +9,9 @@ export const fetchMyOrders = async () => {
     throw new Error("No authentication token found");
   }
 
-  console.log("Attempting to fetch with URL:", `${API_BASE_URL}/orders/mine`);
+  console.log("Attempting to fetch with URL:", `${API_BASE_URL}/api/orders/mine`);
 
-  const response = await fetch(`${API_BASE_URL}/orders/mine`, {
+  const response = await fetch(`${API_BASE_URL}/api/orders/mine`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

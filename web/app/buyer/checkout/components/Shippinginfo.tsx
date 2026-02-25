@@ -83,7 +83,7 @@ export default function ShippingInfoStep({
                 onChange={handleChange}
                 required
                 className={inputClass}
-                placeholder="John Doe"
+                placeholder="Romdoul"
               />
             </div>
             <div>
@@ -144,7 +144,7 @@ export default function ShippingInfoStep({
                 value={form.state}
                 onChange={handleChange}
                 className={inputClass}
-                placeholder="Optional"
+                placeholder="kandal"
               />
             </div>
           </div>
