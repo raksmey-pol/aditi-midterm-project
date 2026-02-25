@@ -26,9 +26,11 @@ const ProductCard = ({ product }: { product: Product }) => {
     }
   });
 
+
+
   const { addItem } = useCart(userId);
 
-  const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
+   const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
 
   const isFavorited = wishlistItems?.some((item) => item.id === product.id);
 
@@ -50,15 +52,17 @@ const ProductCard = ({ product }: { product: Product }) => {
   // ----------------------------
 
   const handleAddToCart = async () => {
-    if (!userId) {
+    // ✅ read directly at click time, not from state
+    const user = localStorage.getItem("user");
+    if (!user) {
       router.push("/login");
       return;
     }
 
     setAdding(true);
     try {
-      await addItem(product.id, 1); // call Spring Boot
-      refetch(); 
+      await addItem(product.id, 1);
+      refetch();
     } catch (err) {
       console.error("Failed to add to cart", err);
     } finally {

@@ -36,17 +36,17 @@ export default function ReviewStep({
         <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">
           Shipping To
         </h3>
-        <p className="text-sm font-medium">{address.fullName}</p>
-        <p className="text-sm text-gray-600">{address.addressLine1}</p>
-        {address.addressLine2 && (
-          <p className="text-sm text-gray-600">{address.addressLine2}</p>
+        <p className="text-sm font-medium">{address.recipientName}</p>
+        <p className="text-sm text-gray-600">{address.street1}</p>
+        {address.street2 && (
+          <p className="text-sm text-gray-600">{address.street2}</p>
         )}
         <p className="text-sm text-gray-600">
           {address.city}
-          {address.state ? `, ${address.state}` : ""} {address.postalCode}
+          {address.state ? `, ${address.state}` : ""} {address.zipCode}
         </p>
         <p className="text-sm text-gray-600">{address.country}</p>
-        <p className="text-sm text-gray-600 mt-1">{address.phone}</p>
+        <p className="text-sm text-gray-600">{address.phoneNumber}</p>
       </div>
 
       {/* Shipping & Payment */}
@@ -71,15 +71,18 @@ export default function ReviewStep({
         <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">
           Items ({cart.items.length})
         </h3>
+
         <div className="space-y-3">
-          {cart.items.map((item) => (
+          {cart.items.map(item => (
             <div
               key={item.cartItemId}
               className="flex justify-between items-center"
             >
               <div>
                 <p className="text-sm font-medium">{item.productName}</p>
-                <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                <p className="text-xs text-gray-500">
+                  Qty: {item.quantity}
+                </p>
               </div>
               <p className="text-sm font-semibold">
                 ${(Number(item.unitPrice) * item.quantity).toFixed(2)}
@@ -97,7 +100,9 @@ export default function ReviewStep({
         </div>
         <div className="flex justify-between text-sm text-gray-600">
           <span>Shipping</span>
-          <span>{shipping === 0 ? "FREE" : `$${shipping.toFixed(2)}`}</span>
+          <span>
+            {shipping === 0 ? "FREE" : `$${shipping.toFixed(2)}`}
+          </span>
         </div>
         <div className="flex justify-between text-sm text-gray-600">
           <span>Tax (8%)</span>
@@ -108,12 +113,14 @@ export default function ReviewStep({
           <span>${total.toFixed(2)}</span>
         </div>
       </div>
+
+      {/* Terms */}
       <div className="flex items-start gap-3 p-4 border border-gray-200 rounded-lg">
         <input
           type="checkbox"
           id="terms"
           checked={agreed}
-          onChange={(e) => setAgreed(e.target.checked)}
+          onChange={e => setAgreed(e.target.checked)}
           className="mt-0.5 w-4 h-4 accent-black cursor-pointer"
         />
         <label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer">
@@ -127,6 +134,8 @@ export default function ReviewStep({
           </a>
         </label>
       </div>
+
+      {/* Actions */}
       <div className="flex gap-3">
         <button
           onClick={onBack}
@@ -134,6 +143,7 @@ export default function ReviewStep({
         >
           ← Back
         </button>
+
         <button
           onClick={onPlaceOrder}
           disabled={loading}

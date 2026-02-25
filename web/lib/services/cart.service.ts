@@ -11,12 +11,26 @@ const getAuthHeaders = (): HeadersInit => {
   };
 };
 
+// ✅ clears session and redirects to login if token is expired
+const handleAuthError = (status: number) => {
+  if (status === 401 || status === 403) {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('cartCount');
+    window.location.href = '/login';
+    return true;
+  }
+  return false;
+};
+
 export const cartService = {
   getCart: async (userId: string): Promise<CartResponse> => {
     const res = await fetch(`${CART_URL}/${userId}`, {
       method: 'GET',
       headers: getAuthHeaders(),
     });
+    if (handleAuthError(res.status)) return {} as CartResponse;
     if (!res.ok) throw new Error('Failed to fetch cart');
     return res.json();
   },
@@ -27,6 +41,7 @@ export const cartService = {
       headers: getAuthHeaders(),
       body: JSON.stringify(body),
     });
+    if (handleAuthError(res.status)) return {} as CartResponse;
     if (!res.ok) throw new Error('Failed to add item to cart');
     return res.json();
   },
@@ -37,6 +52,7 @@ export const cartService = {
       headers: getAuthHeaders(),
       body: JSON.stringify(body),
     });
+    if (handleAuthError(res.status)) return;
     if (!res.ok) throw new Error('Failed to update cart item');
   },
 
@@ -45,6 +61,7 @@ export const cartService = {
       method: 'DELETE',
       headers: getAuthHeaders(),
     });
+    if (handleAuthError(res.status)) return;
     if (!res.ok) throw new Error('Failed to remove item');
   },
 
@@ -53,6 +70,7 @@ export const cartService = {
       method: 'DELETE',
       headers: getAuthHeaders(),
     });
+    if (handleAuthError(res.status)) return;
     if (!res.ok) throw new Error('Failed to clear cart');
   },
 };

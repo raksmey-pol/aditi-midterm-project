@@ -22,13 +22,14 @@ export default function ShippingInfoStep({
 }: Props) {
   const [form, setForm] = useState<AddressForm>(
     defaultAddress ?? {
-      fullName: "",
-      phone: "",
-      addressLine1: "",
-      addressLine2: "",
+      label: "",
+      recipientName: "",
+      phoneNumber: "",
+      street1: "",
+      street2: "",
       city: "",
       state: "",
-      postalCode: "",
+      zipCode: "",
       country: "",
     }
   );
@@ -58,12 +59,27 @@ export default function ShippingInfoStep({
       <div>
         <h2 className="text-lg font-semibold mb-4">Shipping Address</h2>
         <div className="space-y-4">
+
+          {/* Label */}
+          <div>
+            <label className={labelClass}>Address Label *</label>
+            <input
+              name="label"
+              value={form.label}
+              onChange={handleChange}
+              required
+              className={inputClass}
+              placeholder="e.g. Home, Work, Other"
+            />
+          </div>
+
+          {/* Recipient Name & Phone */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className={labelClass}>Full Name *</label>
+              <label className={labelClass}>Recipient Name *</label>
               <input
-                name="fullName"
-                value={form.fullName}
+                name="recipientName"
+                value={form.recipientName}
                 onChange={handleChange}
                 required
                 className={inputClass}
@@ -71,41 +87,44 @@ export default function ShippingInfoStep({
               />
             </div>
             <div>
-              <label className={labelClass}>Phone *</label>
+              <label className={labelClass}>Phone Number *</label>
               <input
-                name="phone"
-                value={form.phone}
+                name="phoneNumber"
+                value={form.phoneNumber}
                 onChange={handleChange}
                 required
                 className={inputClass}
-                placeholder="+1 234 567 8900"
+                placeholder="+855 12 345 678"
               />
             </div>
           </div>
 
+          {/* Street 1 */}
           <div>
-            <label className={labelClass}>Address Line 1 *</label>
+            <label className={labelClass}>Street Address *</label>
             <input
-              name="addressLine1"
-              value={form.addressLine1}
+              name="street1"
+              value={form.street1}
               onChange={handleChange}
               required
               className={inputClass}
-              placeholder="123 Main Street"
+              placeholder="123 Norodom Blvd"
             />
           </div>
 
+          {/* Street 2 */}
           <div>
-            <label className={labelClass}>Address Line 2</label>
+            <label className={labelClass}>Street Address 2</label>
             <input
-              name="addressLine2"
-              value={form.addressLine2}
+              name="street2"
+              value={form.street2}
               onChange={handleChange}
               className={inputClass}
               placeholder="Apartment, suite, etc. (optional)"
             />
           </div>
 
+          {/* City & State */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>City *</label>
@@ -115,11 +134,11 @@ export default function ShippingInfoStep({
                 onChange={handleChange}
                 required
                 className={inputClass}
-                placeholder="New York"
+                placeholder="Phnom Penh"
               />
             </div>
             <div>
-              <label className={labelClass}>State</label>
+              <label className={labelClass}>State / Province</label>
               <input
                 name="state"
                 value={form.state}
@@ -130,16 +149,16 @@ export default function ShippingInfoStep({
             </div>
           </div>
 
+          {/* Zip & Country */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className={labelClass}>Postal Code *</label>
+              <label className={labelClass}>Zip Code</label>
               <input
-                name="postalCode"
-                value={form.postalCode}
+                name="zipCode"
+                value={form.zipCode}
                 onChange={handleChange}
-                required
                 className={inputClass}
-                placeholder="10001"
+                placeholder="Optional"
               />
             </div>
             <div>
@@ -150,7 +169,7 @@ export default function ShippingInfoStep({
                 onChange={handleChange}
                 required
                 className={inputClass}
-                placeholder="United States"
+                placeholder="Cambodia"
               />
             </div>
           </div>
@@ -184,7 +203,9 @@ export default function ShippingInfoStep({
                       <p className="font-medium text-sm">{method.name}</p>
                       <p className="text-xs text-gray-500">{method.description}</p>
                       {isDisabled && (
-                        <p className="text-xs text-red-400 mt-0.5">Requires order over $100</p>
+                        <p className="text-xs text-red-400 mt-0.5">
+                          Requires order over $100
+                        </p>
                       )}
                     </div>
                   </div>
