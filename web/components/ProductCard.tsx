@@ -26,7 +26,30 @@ const ProductCard = ({ product }: { product: Product }) => {
     }
   });
 
+
+
   const { addItem } = useCart(userId);
+
+   const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
+
+  const isFavorited = wishlistItems?.some((item) => item.id === product.id);
+
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevents the Link from navigating when clicking the heart
+    e.stopPropagation();
+
+    if (!userId) {
+      router.push("/login");
+      return;
+    }
+
+    if (isFavorited) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist(product.id);
+    }
+  };
+  // ----------------------------
 
   const handleAddToCart = async () => {
     // ✅ read directly at click time, not from state

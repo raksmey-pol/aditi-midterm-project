@@ -208,7 +208,7 @@ ${order.address.street2 ? `<p>${order.address.street2}</p>` : ""}
             onClick={handleDownloadInvoice}
             className="w-full border-2 border-black text-black py-3 rounded-lg font-semibold hover:bg-black hover:text-white transition"
           >
-            🧾 Download Invoice
+            Download Invoice
           </button>
         )}
         <button
@@ -218,7 +218,7 @@ ${order.address.street2 ? `<p>${order.address.street2}</p>` : ""}
           Continue Shopping
         </button>
         <button
-          onClick={() => router.push("buyer/orders")}
+          onClick={() => router.push("/buyer/orders")}
           className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition"
         >
           View My Orders

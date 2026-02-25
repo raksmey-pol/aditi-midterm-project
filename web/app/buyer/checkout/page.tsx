@@ -63,7 +63,7 @@ export default function CheckoutPage() {
             Authorization: `Bearer ${getToken()}`,
           },
           body: JSON.stringify({
-            label: addressData.label,
+            label: `${addressData.label}-${Date.now()}`,
             recipientName: addressData.recipientName,
             phoneNumber: addressData.phoneNumber,
             street1: addressData.street1,
