@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { authService } from "@/lib/services/auth.service";
 
 export default function SellerLayout({
   children,
@@ -9,6 +11,33 @@ export default function SellerLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [displayName, setDisplayName] = useState("");
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      const stored = authService.getUser();
+      if (stored) {
+        const name = (stored as any).firstName
+          ? `${(stored as any).firstName} ${(stored as any).lastName ?? ""}`.trim()
+          : (stored as any).fullName || (stored as any).email || "Account";
+        setDisplayName(name);
+      } else {
+        try {
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          setDisplayName(payload.sub || "Account");
+        } catch {
+          setDisplayName("Account");
+        }
+      }
+    }
+  }, []);
+
+  const handleLogout = async () => {
+    await authService.logout();
+    router.push("/");
+  };
 
   const navigation = [
     { name: "Dashboard", href: "/seller/dashboard" },
@@ -24,9 +53,9 @@ export default function SellerLayout({
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-8">
-              <Link href="/seller/dashboard" className="text-xl font-bold">
+              <span className="text-xl font-bold cursor-default">
                 Seller Portal
-              </Link>
+              </span>
               <div className="flex gap-4">
                 {navigation.map((item) => (
                   <Link
@@ -43,12 +72,19 @@ export default function SellerLayout({
                 ))}
               </div>
             </div>
-            <Link
-              href="/customer/dashboard"
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
-              Back to Shopping
-            </Link>
+            <div className="flex items-center gap-3">
+              {displayName && (
+                <span className="text-sm text-muted-foreground hidden sm:block">
+                  {displayName}
+                </span>
+              )}
+              <button
+                onClick={handleLogout}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </nav>

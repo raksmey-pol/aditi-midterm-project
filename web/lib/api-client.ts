@@ -1,4 +1,3 @@
-
 export const API_CONFIG = {
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",
   endpoints: {
@@ -12,6 +11,7 @@ export const API_CONFIG = {
     seller: {
       dashboard: "/api/seller/dashboard",
       products: "/api/seller/products",
+      uploadImage: "/api/seller/products/upload-image",
       lowStock: "/api/seller/inventory/low-stock",
       bulkUpdate: "/api/seller/inventory/bulk-update",
       payouts: "/api/seller/payouts",
@@ -25,6 +25,13 @@ export const API_CONFIG = {
     products: {
       list: "/api/products",
       categories: "/api/products/categories",
+    },
+    admin: {
+      dashboard: "/api/admin/dashboard",
+      users: "/api/admin/users",
+      products: "/api/admin/products",
+      orders: "/api/admin/orders",
+      categories: "/api/admin/categories",
     },
   },
 };
@@ -167,8 +174,50 @@ export class ApiClient {
     });
   }
 
+  async patch<T>(
+    endpoint: string,
+    data?: any,
+    options?: RequestInit,
+  ): Promise<T> {
+    return this.request<T>(endpoint, {
+      ...options,
+      method: "PATCH",
+      body: data !== undefined ? JSON.stringify(data) : undefined,
+    });
+  }
+
   async delete<T>(endpoint: string, options?: RequestInit): Promise<T> {
     return this.request<T>(endpoint, { ...options, method: "DELETE" });
+  }
+
+  async uploadFile<T>(endpoint: string, formData: FormData): Promise<T> {
+    const url = `${this.baseURL}${endpoint}`;
+    const token = this.getToken();
+
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const contentType = response.headers.get("content-type");
+      let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+      try {
+        if (contentType?.includes("application/json")) {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        }
+      } catch {}
+      throw new Error(errorMessage);
+    }
+
+    return response.json();
   }
 
   // Token management

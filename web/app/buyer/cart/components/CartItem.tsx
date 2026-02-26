@@ -34,7 +34,7 @@ export function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
       {/* Image */}
       <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-[#F5F0EA]">
         <Image
-          src={item.image}
+          src={item.image || "https://placehold.net/600x600.png"}
           alt={item.name}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"

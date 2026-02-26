@@ -1,15 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { sellerService } from "@/lib/services/seller.service";
 import { Input } from "@/components/ui/input";
 import { Field, FieldLabel } from "@/components/ui/field";
+import Image from "next/image";
 
 export default function NewProduct() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -19,6 +23,28 @@ export default function NewProduct() {
     imageUrl: "",
     status: "ACTIVE",
   });
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Show local preview immediately
+    const objectUrl = URL.createObjectURL(file);
+    setImagePreview(objectUrl);
+
+    // Upload to server
+    setUploadingImage(true);
+    try {
+      const result = await sellerService.uploadProductImage(file);
+      setFormData((prev) => ({ ...prev, imageUrl: result.imageUrl }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to upload image");
+      setImagePreview(null);
+      setFormData((prev) => ({ ...prev, imageUrl: "" }));
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,14 +140,66 @@ export default function NewProduct() {
         </Field>
 
         <Field>
-          <FieldLabel>Image URL</FieldLabel>
-          <Input
-            value={formData.imageUrl}
-            onChange={(e) =>
-              setFormData({ ...formData, imageUrl: e.target.value })
-            }
-            placeholder="https://example.com/image.jpg"
-          />
+          <FieldLabel>Product Image</FieldLabel>
+          <div className="space-y-3">
+            {/* Image Preview */}
+            {imagePreview && (
+              <div className="relative w-full h-48 rounded-lg overflow-hidden border border-border bg-muted">
+                <Image
+                  src={imagePreview}
+                  alt="Product preview"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            )}
+
+            {/* Upload Button */}
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingImage}
+                className="px-4 py-2 border border-border rounded-lg hover:bg-muted text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {uploadingImage
+                  ? "Uploading..."
+                  : imagePreview
+                    ? "Change Image"
+                    : "Choose Image"}
+              </button>
+              {formData.imageUrl && !uploadingImage && (
+                <span className="text-sm text-muted-foreground">
+                  ✓ Image uploaded
+                </span>
+              )}
+              {imagePreview && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImagePreview(null);
+                    setFormData((prev) => ({ ...prev, imageUrl: "" }));
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                  }}
+                  className="text-sm text-destructive hover:underline"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageChange}
+            />
+
+            <p className="text-xs text-muted-foreground">
+              Accepted formats: JPG, PNG, GIF, WebP (max 10MB)
+            </p>
+          </div>
         </Field>
 
         <Field>
@@ -142,7 +220,7 @@ export default function NewProduct() {
         <div className="flex gap-4">
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || uploadingImage}
             className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50"
           >
             {loading ? "Creating..." : "Create Product"}
