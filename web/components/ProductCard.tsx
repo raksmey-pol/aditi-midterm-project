@@ -26,11 +26,9 @@ const ProductCard = ({ product }: { product: Product }) => {
     }
   });
 
-
-
   const { addItem } = useCart(userId);
 
-   const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
+  const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
 
   const isFavorited = wishlistItems?.some((item) => item.id === product.id);
 
@@ -77,7 +75,8 @@ const ProductCard = ({ product }: { product: Product }) => {
       <button
         onClick={handleToggleWishlist}
         className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/80 backdrop-blur-sm shadow-sm hover:bg-white transition-all duration-300"
-        aria-label="Toggle Wishlist">
+        aria-label="Toggle Wishlist"
+      >
         <Heart
           className={`w-5 h-5 transition-colors ${
             isFavorited
@@ -92,7 +91,7 @@ const ProductCard = ({ product }: { product: Product }) => {
       <Link href={`/product/${product.id}`}>
         <div className="relative aspect-square w-full overflow-hidden group">
           <Image
-            src={product.imageUrl}
+            src={product.imageUrl || "https://placehold.net/600x600.png"}
             alt={product.name}
             fill
             className="object-cover group-hover:scale-110 transition duration-500"
@@ -111,7 +110,8 @@ const ProductCard = ({ product }: { product: Product }) => {
           <button
             onClick={handleAddToCart}
             disabled={adding}
-            className="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+            className="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             {adding ? "Adding..." : "Add to Cart"}
           </button>
         </div>

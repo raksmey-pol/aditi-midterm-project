@@ -23,6 +23,18 @@ export class SellerService {
   }
 
   /**
+   * Upload product image
+   */
+  async uploadProductImage(file: File): Promise<{ imageUrl: string }> {
+    const formData = new FormData();
+    formData.append("file", file);
+    return apiClient.uploadFile<{ imageUrl: string }>(
+      API_CONFIG.endpoints.seller.uploadImage,
+      formData,
+    );
+  }
+
+  /**
    * Get all seller products
    */
   async getProducts(): Promise<Product[]> {
