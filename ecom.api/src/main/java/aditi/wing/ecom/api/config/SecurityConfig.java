@@ -38,13 +38,14 @@ public class SecurityConfig {
                         // endpoints
                         .requestMatchers("/api/public/**").permitAll() // Public endpoints
                         .requestMatchers("/api/products/**").permitAll() // Public product endpoints
+                        .requestMatchers("/uploads/**").permitAll() // Uploaded product images
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") // Admin only
                         .requestMatchers("/api/auth/change-password").authenticated()
                         .requestMatchers("/api/auth/me/**").authenticated()
                         .requestMatchers("/api/addresses/**").authenticated()
                         .requestMatchers("/api/wishlist/**").authenticated()
                         .requestMatchers("/api/auth/logout", "/api/auth/me").authenticated() // Require JWT for logout
-                        .requestMatchers("/api/v1/carts/**").permitAll()                                                        // and profile
+                        .requestMatchers("/api/v1/carts/**").permitAll() // and profile
                         .requestMatchers("/api/orders/**").authenticated()
                         .anyRequest().authenticated() // Everything else requires JWT
                 )

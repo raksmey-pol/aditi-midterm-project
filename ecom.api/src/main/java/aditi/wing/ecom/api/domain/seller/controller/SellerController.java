@@ -1,6 +1,12 @@
 package aditi.wing.ecom.api.domain.seller.controller;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -14,7 +20,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import aditi.wing.ecom.api.common.util.JwtUtil;
 import aditi.wing.ecom.api.domain.seller.dto.BulkStockUpdateDto;
@@ -207,6 +215,58 @@ public class SellerController {
 
             List<PayoutDto> payouts = sellerService.getPayouts(sellerId);
             return ResponseEntity.ok(payouts);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
+    /**
+     * Upload product image
+     * POST /api/seller/products/upload-image
+     */
+    @PostMapping("/products/upload-image")
+    public ResponseEntity<?> uploadProductImage(
+            @RequestParam("file") MultipartFile file,
+            HttpServletRequest request) {
+        try {
+            UUID sellerId = jwtUtil.getUserIdFromRequest(request);
+            if (sellerId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new ErrorResponse("Unauthorized"));
+            }
+
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body(new ErrorResponse("No file provided"));
+            }
+
+            // Validate file type
+            String contentType = file.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                return ResponseEntity.badRequest().body(new ErrorResponse("Only image files are allowed"));
+            }
+
+            // Create uploads directory if it doesn't exist
+            Path uploadDir = Paths.get("uploads", "images");
+            Files.createDirectories(uploadDir);
+
+            // Generate unique filename preserving extension
+            String originalFilename = file.getOriginalFilename();
+            String extension = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf('.'));
+            }
+            String filename = UUID.randomUUID().toString() + extension;
+
+            // Save file
+            Path filePath = uploadDir.resolve(filename);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            String imageUrl = "/uploads/images/" + filename;
+            return ResponseEntity.ok(Map.of("imageUrl", imageUrl));
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Failed to upload image: " + e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse(e.getMessage()));
