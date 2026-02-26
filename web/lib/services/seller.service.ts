@@ -5,6 +5,7 @@ import type {
   DashboardStats,
   Payout,
   BulkStockUpdate,
+  Category,
 } from "@/lib/types/seller";
 
 export class SellerService {
@@ -82,6 +83,12 @@ export class SellerService {
    */
   async getPayouts(): Promise<Payout[]> {
     return apiClient.get<Payout[]>(API_CONFIG.endpoints.seller.payouts);
+  }
+
+  // Get Category
+
+  async getCategories(): Promise<Category[]> {
+    return apiClient.get<Category[]>(API_CONFIG.endpoints.seller.categories);
   }
 }
 

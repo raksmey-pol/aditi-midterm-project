@@ -3,6 +3,7 @@ package aditi.wing.ecom.api.config;
 import java.util.ArrayList;
 import java.util.List;
 
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -13,11 +14,13 @@ import aditi.wing.ecom.api.domain.auth.model.Role;
 import aditi.wing.ecom.api.domain.auth.model.RolePermission;
 import aditi.wing.ecom.api.domain.auth.model.User;
 import aditi.wing.ecom.api.domain.auth.model.UserRole;
+import aditi.wing.ecom.api.domain.admin.model.Category;
 import aditi.wing.ecom.api.domain.auth.repository.PermissionRepository;
 import aditi.wing.ecom.api.domain.auth.repository.RolePermissionRepository;
 import aditi.wing.ecom.api.domain.auth.repository.RoleRepository;
 import aditi.wing.ecom.api.domain.auth.repository.UserRepository;
 import aditi.wing.ecom.api.domain.auth.repository.UserRoleRepository;
+import aditi.wing.ecom.api.domain.admin.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,7 +35,7 @@ public class DataLoader implements CommandLineRunner {
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private final CategoryRepository categoryRepository;
     @Override
     @Transactional
     public void run(String... args) throws Exception {
@@ -49,7 +52,8 @@ public class DataLoader implements CommandLineRunner {
 
         // Seed Users (Admin, Seller, Buyer)
         seedUsers();
-
+        // Seed Categories
+        seedCategories();
         log.info("RBAC data seeding completed successfully!");
     }
 
@@ -274,5 +278,29 @@ public class DataLoader implements CommandLineRunner {
         log.info("Created buyer user: {}", savedBuyer.getEmail());
 
         log.info("Successfully seeded 3 users (admin, seller, buyer)");
+    }
+
+    private void seedCategories() {
+        if (categoryRepository.count() > 0) {
+            log.info("Categories already exist, skipping category seeding");
+            return;
+        }
+
+        List<Category> categories = List.of(
+                Category.builder().name("Electronics").build(),
+                Category.builder().name("Clothing & Apparel").build(),
+                Category.builder().name("Home & Garden").build(),
+                Category.builder().name("Sports & Outdoors").build(),
+                Category.builder().name("Books & Media").build(),
+                Category.builder().name("Toys & Games").build(),
+                Category.builder().name("Beauty & Personal Care").build(),
+                Category.builder().name("Automotive").build(),
+                Category.builder().name("Food & Grocery").build(),
+                Category.builder().name("Health & Wellness").build(),
+                Category.builder().name("Other").build()
+        );
+
+        categoryRepository.saveAll(categories);
+        log.info("Seeded {} categories", categories.size());
     }
 }
