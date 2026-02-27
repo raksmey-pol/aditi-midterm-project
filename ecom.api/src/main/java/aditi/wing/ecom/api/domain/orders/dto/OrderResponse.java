@@ -1,4 +1,5 @@
 package aditi.wing.ecom.api.domain.orders.dto;
+import aditi.wing.ecom.api.domain.address.dto.AddressResponse;
 import aditi.wing.ecom.api.domain.orders.enums.OrderStatus;
 
 import java.math.BigDecimal;
@@ -9,8 +10,9 @@ import java.util.UUID;
 public record OrderResponse(
         UUID id,
         UUID buyerId,
-        OrderStatus status,
+        String status,
         BigDecimal totalAmount,
+        String shippingAddress,
         List<OrderItemResponse> items,
         LocalDateTime createdAt
 ) {}

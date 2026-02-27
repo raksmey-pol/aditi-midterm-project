@@ -4,12 +4,13 @@ import {
   removeFromWishlist as apiRemoveFromWishlist,
 } from "@/lib/services/wishist.service";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
+import { useAuthContext } from "@/context/authcontext";
 
 export const useWishlist = () => {
   const queryClient = useQueryClient();
+  const { isLoggedIn } = useAuthContext();
 
-  // 1. Fetch the wishlist
+  // Only fetch when the user is authenticated – avoids 403 for guests
   const {
     data: wishlistItems = [],
     isLoading,
@@ -17,13 +18,13 @@ export const useWishlist = () => {
   } = useQuery({
     queryKey: ["wishlist"],
     queryFn: fetchWishlist,
+    enabled: isLoggedIn,
   });
 
   // 2. Add to wishlist
   const { mutate: addToWishlist, isPending: isAdding } = useMutation({
     mutationFn: apiAddToWishlist,
     onSuccess: () => {
-      // Instantly refetch the wishlist so the UI updates
       queryClient.invalidateQueries({ queryKey: ["wishlist"] });
     },
   });

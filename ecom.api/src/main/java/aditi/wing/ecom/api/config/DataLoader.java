@@ -229,7 +229,6 @@ public class DataLoader implements CommandLineRunner {
                 .passwordHash(passwordEncoder.encode("Admin@123"))
                 .firstName("Admin")
                 .lastName("User")
-                .address("Los Angeles")
                 .phone("+1234567890")
                 .isActive(true)
                 .emailVerified(true)

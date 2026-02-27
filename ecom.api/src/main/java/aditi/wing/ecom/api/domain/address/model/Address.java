@@ -1,6 +1,7 @@
 package aditi.wing.ecom.api.domain.address.model;
 
 import aditi.wing.ecom.api.domain.auth.model.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
@@ -20,6 +21,7 @@ public class Address {
 
     private String label;
 
+    @JsonProperty("isDefault")
     @Column(name = "is_default")
     private boolean isDefault;
 

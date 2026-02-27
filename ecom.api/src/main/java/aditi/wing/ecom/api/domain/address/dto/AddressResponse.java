@@ -1,4 +1,6 @@
 package aditi.wing.ecom.api.domain.address.dto;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.UUID;
 
 public record AddressResponse(
@@ -12,5 +14,6 @@ public record AddressResponse(
         String state,
         String zipCode,
         String country,
+        @JsonProperty("isDefault")
         boolean isDefault
 ) {}

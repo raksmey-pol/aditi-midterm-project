@@ -25,6 +25,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "cdsassets.apple.com",
       },
+        {
+          protocol: "https",
+          hostname: "www.cellcard.com.kh",
+        },
     ],
   },
   async rewrites() {

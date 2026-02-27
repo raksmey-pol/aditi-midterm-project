@@ -1,5 +1,5 @@
 export const API_CONFIG = {
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
   endpoints: {
     auth: {
       login: "/api/auth/login",
@@ -7,6 +7,7 @@ export const API_CONFIG = {
       logout: "/api/auth/logout",
       me: "/api/auth/me",
       roles: "/api/auth/roles",
+      changePassword: "/api/auth/change-password",
     },
     seller: {
       dashboard: "/api/seller/dashboard",
@@ -18,10 +19,11 @@ export const API_CONFIG = {
       categories: "/api/categories",
     },
     buyer: {
-      orders: "buyer/orders",
-      wishlist: "buyer/wishlist",
-      profile: "buyer/profile",
-      changePassword: "buyer/change-password",
+      orders: "/api/orders",
+      wishlist: "/api/wishlist",
+      profile: "/api/auth/me",
+      stats: "/api/buyers/me/stats",
+      changePassword: "/api/auth/change-password",
     },
     products: {
       list: "/api/products",

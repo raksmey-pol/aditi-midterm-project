@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import aditi.wing.ecom.api.domain.cart.repository.CartItemRepository;
 import aditi.wing.ecom.api.domain.seller.dto.BulkStockUpdateDto;
 import aditi.wing.ecom.api.domain.seller.dto.DashboardStatsDto;
 import aditi.wing.ecom.api.domain.seller.dto.PayoutDto;
@@ -16,8 +17,11 @@ import aditi.wing.ecom.api.domain.seller.dto.ProductRequestDto;
 import aditi.wing.ecom.api.domain.seller.dto.ProductResponseDto;
 import aditi.wing.ecom.api.domain.seller.model.Product;
 import aditi.wing.ecom.api.domain.seller.model.Sale;
+import aditi.wing.ecom.api.domain.seller.repository.ProductImagesRepository;
 import aditi.wing.ecom.api.domain.seller.repository.ProductRepository;
+import aditi.wing.ecom.api.domain.seller.repository.ProductVariantsRepository;
 import aditi.wing.ecom.api.domain.seller.repository.SaleRepository;
+import aditi.wing.ecom.api.domain.wishlist.repository.WishlistItemRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -26,6 +30,10 @@ public class SellerServiceImpl implements SellerService {
 
     private final ProductRepository productRepository;
     private final SaleRepository saleRepository;
+    private final CartItemRepository cartItemRepository;
+    private final WishlistItemRepository wishlistItemRepository;
+    private final ProductVariantsRepository productVariantsRepository;
+    private final ProductImagesRepository productImagesRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -111,6 +119,12 @@ public class SellerServiceImpl implements SellerService {
         if (!product.getSellerId().equals(sellerId)) {
             throw new RuntimeException("Unauthorized to delete this product");
         }
+
+        // Remove dependent records that have FK constraints on products
+        cartItemRepository.deleteByProduct_Id(productId);
+        wishlistItemRepository.deleteByProduct_Id(productId);
+        productVariantsRepository.deleteByProduct_Id(productId);
+        productImagesRepository.deleteByProduct_Id(productId);
 
         productRepository.delete(product);
     }

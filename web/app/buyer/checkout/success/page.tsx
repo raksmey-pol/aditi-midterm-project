@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Package } from "lucide-react";
 import { OrderItem } from "@/lib/types/order";
 
 interface LastOrder {
@@ -184,8 +184,9 @@ ${order.address.street2 ? `<p>${order.address.street2}</p>` : ""}
 
       {order && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4 text-left">
-          <p className="text-sm text-green-800 font-medium mb-1">
-            📦 Estimated Delivery
+          <p className="flex items-center gap-2 text-sm text-green-800 font-medium mb-1">
+            <Package className="w-4 h-4" />
+            Estimated Delivery
           </p>
           <p className="text-sm text-green-700">By {getEstimatedDelivery()}</p>
           <p className="text-xs text-green-600 mt-1">
@@ -206,21 +207,18 @@ ${order.address.street2 ? `<p>${order.address.street2}</p>` : ""}
         {order && (
           <button
             onClick={handleDownloadInvoice}
-            className="w-full border-2 border-black text-black py-3 rounded-lg font-semibold hover:bg-black hover:text-white transition"
-          >
+            className="w-full border-2 border-black text-black py-3 rounded-lg font-semibold hover:bg-black hover:text-white transition">
             Download Invoice
           </button>
         )}
         <button
           onClick={() => router.push("/")}
-          className="w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition"
-        >
+          className="w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition">
           Continue Shopping
         </button>
         <button
           onClick={() => router.push("/buyer/orders")}
-          className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition"
-        >
+          className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition">
           View My Orders
         </button>
       </div>

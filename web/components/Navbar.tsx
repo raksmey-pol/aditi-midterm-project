@@ -9,6 +9,8 @@ import HeaderMenu from "./HeaderMenu";
 import SignIn from "./SignIn";
 import Link from "next/link";
 import { authService } from "@/lib/services/auth.service";
+import { useAuthContext } from "@/context/authcontext";
+import BuyerNavActions from "./BuyerNavActions";
 
 type StoredUser = {
   firstName?: string;
@@ -44,28 +46,21 @@ const getAuthSnapshot = (): { isLoggedIn: boolean; displayName: string } => {
   }
 };
 
+
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const [authState, setAuthState] = useState(getAuthSnapshot);
-  const { isLoggedIn, displayName } = authState;
   const [hasMounted, setHasMounted] = useState(false);
+  const { user, isLoggedIn, displayName, clearUser } = useAuthContext();
+  const isBuyer = user?.roles?.includes("buyer") ?? false;
 
   useEffect(() => {
     setHasMounted(true);
-    const syncAuth = () => setAuthState(getAuthSnapshot());
-    window.addEventListener("storage", syncAuth);
-    window.addEventListener("focus", syncAuth);
-
-    return () => {
-      window.removeEventListener("storage", syncAuth);
-      window.removeEventListener("focus", syncAuth);
-    };
   }, []);
 
   const handleLogout = async () => {
     await authService.logout();
-    setAuthState({ isLoggedIn: false, displayName: "" });
+    clearUser();
     router.push("/");
   };
 
@@ -80,7 +75,7 @@ export default function Navbar() {
         {/* Left: mobile menu + logo */}
         <div className="w-auto md:w-1/3 flex items-center gap-2.5 justify-start md:gap-0">
           <MobileMenu />
-          {hasMounted && <Logo clickable={!isLoggedIn} />}
+          {hasMounted && <Logo clickable={!isLoggedIn || isBuyer} />}
         </div>
 
         {/* Centre: nav links */}
@@ -90,17 +85,21 @@ export default function Navbar() {
         <div className="w-auto md:w-1/3 flex items-center justify-end gap-5">
           {hasMounted ? (
             isLoggedIn ? (
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-semibold text-lightColor hidden sm:block">
-                  {displayName}
-                </span>
-                <button
-                  onClick={handleLogout}
-                  className="text-sm font-semibold text-lightColor hover:text-darkColor hover:cursor-pointer hoverEffect"
-                >
-                  Logout
-                </button>
-              </div>
+              isBuyer ? (
+                <BuyerNavActions />
+              ) : (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-semibold text-lightColor hidden sm:block">
+                    {displayName}
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    className="text-sm font-semibold text-lightColor hover:text-darkColor hover:cursor-pointer hoverEffect"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )
             ) : (
               <Link href="/login">
                 <SignIn />

@@ -1,5 +1,6 @@
 package aditi.wing.ecom.api.domain.cart.repository;
 
+import aditi.wing.ecom.api.domain.auth.model.User;
 import aditi.wing.ecom.api.domain.cart.model.Cart;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,4 +12,6 @@ import java.util.UUID;
 public interface CartRepository extends JpaRepository<Cart, UUID> {
     @Query("SELECT c FROM Cart c WHERE c.user.id = :userId")
     Optional<Cart> findByUserId(@Param("userId") UUID userId);
+    @Query("SELECT c FROM Cart c LEFT JOIN FETCH c.items ci LEFT JOIN FETCH ci.product WHERE c.user = :user")
+    Optional<Cart> findByUserWithItems(@Param("user") User user);
 }
