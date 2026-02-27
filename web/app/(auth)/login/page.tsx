@@ -1,119 +1,90 @@
 "use client";
 
-import { Field, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState, FormEvent } from "react";
+import Link from "next/link";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
+
+import { loginSchema, LoginFormValues } from "@/schemas/login-validation";
 import { authService } from "@/lib/services/auth.service";
 import { useAuthContext } from "@/context/authcontext";
+
+import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+const getRedirectPath = (roles: string[]): string => {
+  if (!roles || roles.length === 0) return "/";
+  if (roles.includes("admin")) return "/admin";
+  if (roles.includes("seller")) return "/seller/dashboard";
+  if (roles.includes("buyer")) return "/";
+  return "/";
+};
 
 export default function Login() {
   const router = useRouter();
   const { setUser } = useAuthContext();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
 
-  /**
-   * Get redirect path based on user roles
-   * Priority: admin > seller > buyer > default
-   */
-  const getRedirectPath = (roles: string[]): string => {
-    if (!roles || roles.length === 0) {
-      return "/customer/dashboard"; // Default for users without roles
-    }
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      passwordHash: "",
+    },
+  });
 
-    // Check roles in priority order
-    if (roles.includes("admin")) {
-      return "/admin";
-    }
-    if (roles.includes("seller")) {
-      return "/seller/dashboard";
-    }
-    if (roles.includes("buyer")) {
-      return "/";
-    }
-
-    // Fallback to customer dashboard
-    return "/";
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
+  const onSubmit = async (data: LoginFormValues) => {
+    setServerError("");
     try {
-      // Validate inputs
-      if (!email || !password) {
-        setError("Please fill in all fields");
-        setLoading(false);
-        return;
-      }
-
-      // Call login API
-      const response = await authService.login({
-        email,
-        passwordHash: password, // Backend expects this field name
-      });
-
-      // Store user data and update global auth state
+      const response = await authService.login(data);
       authService.setUser(response.user);
       setUser(response.user);
-
-      // Redirect based on user role
-      const redirectPath = getRedirectPath(response.user.roles);
-      router.push(redirectPath);
+      router.push(getRedirectPath(response.user.roles));
     } catch (err) {
-      // Handle different types of errors more gracefully
-      let errorMessage = "Login failed. Please try again.";
-
+      let message = "Login failed. Please try again.";
       if (err instanceof Error) {
-        // Check for specific error messages
         if (
           err.message.includes("401") ||
           err.message.includes("Unauthorized")
         ) {
-          errorMessage =
-            "Invalid email or password. Please check your credentials and try again.";
+          message = "Invalid email or password. Please check your credentials.";
         } else if (
           err.message.includes("404") ||
           err.message.includes("Not Found")
         ) {
-          errorMessage =
-            "Account not found. Please check your email or register for a new account.";
+          message = "Account not found. Please check your email or register.";
         } else if (err.message.includes("Backend server is not running")) {
-          errorMessage =
-            "Unable to connect to the server. Please try again later.";
+          message = "Unable to connect to the server. Please try again later.";
         } else if (err.message.includes("Network error")) {
-          errorMessage =
+          message =
             "Network connection error. Please check your internet connection.";
         } else {
-          // Use the error message from the API if available
-          errorMessage = err.message;
+          message = err.message;
         }
       }
-
-      setError(errorMessage);
-      console.error("Login error:", err);
-    } finally {
-      setLoading(false);
+      setServerError(message);
     }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-muted/20 to-accent/10 p-4">
-      {/* Decorative background elements */}
+      {/* Decorative background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-accent/10 blur-3xl" />
       </div>
 
-      {/* Login Card */}
       <div className="relative w-full max-w-md">
         <div className="rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-8 shadow-2xl shadow-primary/5">
           {/* Header */}
@@ -126,70 +97,79 @@ export default function Login() {
             </p>
           </div>
 
-          {/* Error Message */}
-          {error && (
+          {/* Server Error */}
+          {serverError && (
             <div className="mb-6 rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
-              {error}
+              {serverError}
             </div>
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit}>
-            <FieldSet>
-              <FieldGroup className="space-y-5">
-                <Field>
-                  <FieldLabel htmlFor="email" className="text-foreground">
-                    Email Address
-                  </FieldLabel>
-                  <Input
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    placeholder="your_email@example.com"
-                    className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    disabled={loading}
-                    required
-                  />
-                </Field>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              {/* Email */}
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email Address</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        autoComplete="email"
+                        placeholder="your_email@example.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <Field>
-                  <div className="flex items-center justify-between mb-2">
-                    <FieldLabel htmlFor="password" className="text-foreground">
-                      Password
-                    </FieldLabel>
-                    <Link
-                      href="/auth/forgot-password"
-                      className="text-xs text-primary hover:text-primary/80 transition-colors"
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
-                  <Input
-                    id="password"
-                    type="password"
-                    autoComplete="current-password"
-                    placeholder="Enter your password"
-                    className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    disabled={loading}
-                    required
-                  />
-                </Field>
+              {/* Password */}
+              <FormField
+                control={form.control}
+                name="passwordHash"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center justify-between mb-2">
+                      <FormLabel>Password</FormLabel>
+                      <Link
+                        href="/auth/forgot-password"
+                        className="text-xs text-primary hover:text-primary/80 transition-colors">
+                        Forgot password?
+                      </Link>
+                    </div>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        autoComplete="current-password"
+                        placeholder="Enter your password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                {/* Login Button */}
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-200 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-                >
-                  {loading ? "Signing in..." : "Sign In"}
-                </button>
-              </FieldGroup>
-            </FieldSet>
-          </form>
+              {/* Submit */}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  "Sign In"
+                )}
+              </Button>
+            </form>
+          </Form>
 
           {/* Divider */}
           <div className="my-6 flex items-center gap-4">
@@ -198,32 +178,29 @@ export default function Login() {
             <Separator className="flex-1" />
           </div>
 
-          {/* Sign Up Link */}
-          <p className="mt-8 text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
+          {/* Register Link */}
+          <p className="text-center text-sm text-muted-foreground">
+            Don&apos;t have an account?{" "}
             <Link
               href="/register"
-              className="font-semibold text-primary hover:text-primary/80 transition-colors"
-            >
+              className="font-semibold text-primary hover:text-primary/80 transition-colors">
               Sign up for free
             </Link>
           </p>
         </div>
 
-        {/* Additional info */}
+        {/* Legal */}
         <p className="mt-6 text-center text-xs text-muted-foreground">
           By signing in, you agree to our{" "}
           <Link
             href="/terms"
-            className="underline hover:text-foreground transition-colors"
-          >
+            className="underline hover:text-foreground transition-colors">
             Terms of Service
           </Link>{" "}
           and{" "}
           <Link
             href="/privacy"
-            className="underline hover:text-foreground transition-colors"
-          >
+            className="underline hover:text-foreground transition-colors">
             Privacy Policy
           </Link>
         </p>

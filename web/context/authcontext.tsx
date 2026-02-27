@@ -13,6 +13,7 @@ import type { UserResponse } from "@/lib/types/auth";
 interface AuthContextType {
   user: UserResponse | null;
   isLoggedIn: boolean;
+  isLoading: boolean;
   displayName: string;
   setUser: (user: UserResponse) => void;
   clearUser: () => void;
@@ -22,17 +23,19 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUserState] = useState<UserResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Initialise auth state from localStorage on mount
     const token = localStorage.getItem("accessToken");
-    if (!token) return;
+    if (!token) {
+      setIsLoading(false);
+      return;
+    }
 
     const stored = authService.getUser();
     if (stored) {
       setUserState(stored);
     } else {
-      // Fallback: decode the JWT subject to get a display hint
       try {
         const payload = JSON.parse(atob(token.split(".")[1]));
         setUserState({ email: payload.sub } as UserResponse);
@@ -40,6 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // ignore malformed token
       }
     }
+    setIsLoading(false); // ← done loading
   }, []);
 
   const setUser = useCallback((newUser: UserResponse) => {
@@ -58,8 +62,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoggedIn: !!user, displayName, setUser, clearUser }}
-    >
+      value={{
+        user,
+        isLoggedIn: !!user,
+        isLoading,
+        displayName,
+        setUser,
+        clearUser,
+      }}>
       {children}
     </AuthContext.Provider>
   );

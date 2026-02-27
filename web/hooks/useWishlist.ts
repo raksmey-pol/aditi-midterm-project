@@ -10,7 +10,6 @@ export const useWishlist = () => {
   const queryClient = useQueryClient();
   const { isLoggedIn } = useAuthContext();
 
-  // Only fetch when the user is authenticated – avoids 403 for guests
   const {
     data: wishlistItems = [],
     isLoading,
@@ -21,18 +20,41 @@ export const useWishlist = () => {
     enabled: isLoggedIn,
   });
 
-  // 2. Add to wishlist
   const { mutate: addToWishlist, isPending: isAdding } = useMutation({
     mutationFn: apiAddToWishlist,
-    onSuccess: () => {
+    onMutate: async (productId) => {
+      await queryClient.cancelQueries({ queryKey: ["wishlist"] });
+      const previous = queryClient.getQueryData(["wishlist"]);
+      queryClient.setQueryData(["wishlist"], (old: any[]) => [
+        ...(old ?? []),
+        { id: productId, productId },
+      ]);
+      return { previous };
+    },
+    onError: (_, __, context) => {
+      queryClient.setQueryData(["wishlist"], context?.previous);
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["wishlist"] });
     },
   });
 
-  // 3. Remove from wishlist
   const { mutate: removeFromWishlist, isPending: isRemoving } = useMutation({
     mutationFn: apiRemoveFromWishlist,
-    onSuccess: () => {
+    onMutate: async (productId) => {
+      await queryClient.cancelQueries({ queryKey: ["wishlist"] });
+      const previous = queryClient.getQueryData(["wishlist"]);
+      queryClient.setQueryData(["wishlist"], (old: any[]) =>
+        (old ?? []).filter(
+          (item) => item.id !== productId && item.productId !== productId,
+        ),
+      );
+      return { previous };
+    },
+    onError: (_, __, context) => {
+      queryClient.setQueryData(["wishlist"], context?.previous);
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["wishlist"] });
     },
   });
