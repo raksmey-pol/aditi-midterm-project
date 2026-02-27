@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 
 import aditi.wing.ecom.api.domain.auth.dto.*;
+import aditi.wing.ecom.api.domain.auth.projection.UserStatsProjection;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -226,5 +228,21 @@ public class AuthServiceImpl implements AuthService {
 
         user.setActive(false);
         userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public UserStatsDto getUserStats(UUID userId) {
+        UserStatsProjection projection = userRepository.findStatsByUserId(userId);
+
+        if (projection == null) {
+            throw new EntityNotFoundException("User not found: " + userId);
+        }
+
+        return new UserStatsDto(
+                projection.getTotalOrders()   != null ? projection.getTotalOrders()   : 0L,
+                projection.getTotalSpending() != null ? projection.getTotalSpending() : 0.0,
+                projection.getWishlistItems() != null ? projection.getWishlistItems() : 0L
+        );
     }
 }

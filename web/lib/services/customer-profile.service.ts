@@ -1,5 +1,5 @@
 import { API_CONFIG } from "@/lib/api-client";
-import { Customer, PasswordFormData } from "../types/customer";
+import { Customer, CustomerStats, PasswordFormData } from "../types/customer";
 
 export type UpdateProfilePayload = {
   firstName: string;
@@ -8,6 +8,8 @@ export type UpdateProfilePayload = {
   phone?: string | null;
   address?: string | null;
 };
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 export async function getCustomerProfile(): Promise<Customer> {
   const token =
@@ -89,4 +91,27 @@ export const changePassword = async (data: ChangePasswordPayload) => {
   }
 
   return responseData;
+};
+
+export const fetchCustomerStats = async (): Promise<CustomerStats> => {
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+
+  if (!token) {
+    throw new Error("No authentication token found");
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/buyers/me/stats`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch customer stats: ${response.status}`);
+  }
+
+  return response.json();
 };

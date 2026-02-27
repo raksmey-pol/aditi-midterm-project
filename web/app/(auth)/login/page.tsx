@@ -33,11 +33,11 @@ export default function Login() {
       return "/seller/dashboard";
     }
     if (roles.includes("buyer")) {
-      return "/customer/dashboard";
+      return "/";
     }
 
     // Fallback to customer dashboard
-    return "/customer/dashboard";
+    return "/";
   };
 
   const handleSubmit = async (e: FormEvent) => {
