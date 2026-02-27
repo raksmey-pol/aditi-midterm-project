@@ -27,7 +27,6 @@ public class AddressController {
             Principal principal,
             @Valid @RequestBody AddressRequest addressRequest) {
 
-        // principal.getName() usually holds the email from your JWT subject
         User user = userRepository.findByEmail(principal.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 

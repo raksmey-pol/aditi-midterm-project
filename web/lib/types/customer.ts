@@ -9,13 +9,13 @@ export type Customer = {
   updatedAt: string;
   roles: string[];
   permissions: string[];
-
-  stats?: {
-    orders: number;
-    spent: number;
-    reviews: number;
-  };
 };
+
+export interface CustomerStats {
+  totalOrders: number;
+  totalSpending: number;
+  wishlistItems: number;
+}
 
 export interface ProfileFormData {
   name: string;
