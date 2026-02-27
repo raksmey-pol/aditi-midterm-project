@@ -1,8 +1,11 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useCustomerStats } from "@/hooks/useCustomerStats";
 
@@ -13,6 +16,8 @@ import { PasswordChangeForm } from "./change-password-form";
 import { Spinner } from "./ui/spinner";
 
 export default function CustomerProfile() {
+  const router = useRouter();
+
   const {
     data: customer,
     isLoading: isAuthLoading,
@@ -58,6 +63,18 @@ export default function CustomerProfile() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
+        {/* ── Back Button ── */}
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.push("/")}
+            className="h-9 w-9 rounded-full">
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm text-muted-foreground">Back to Home</span>
+        </div>
+
         <CustomerHeader customer={customer} />
 
         {stats && <StatsCards stats={stats} />}

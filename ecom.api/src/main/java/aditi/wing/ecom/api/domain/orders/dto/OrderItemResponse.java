@@ -4,11 +4,11 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 public record OrderItemResponse(
-        UUID id,             // The unique ID of the line item
+        UUID id,
         UUID productId,
-        UUID sellerId,
         String productName,
+        String productImageUrl,
         int quantity,
-        BigDecimal price,    // Unit price
-        String status
+        BigDecimal price,
+        BigDecimal subtotal
 ) {}

@@ -1,12 +1,16 @@
 "use client";
 
-import { Heart } from "lucide-react";
+import { Heart, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useWishlist } from "@/hooks/useWishlist"; 
+import { useRouter } from "next/navigation";
+import { useWishlist } from "@/hooks/useWishlist";
 import ProductCard from "@/components/ProductCard";
 import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@/components/ui/button";
+import { Product } from "@/lib/services/product.service";
 
 const WishListPage = () => {
+  const router = useRouter();
   const { wishlistItems, isLoading } = useWishlist();
 
   if (isLoading) {
@@ -36,11 +40,20 @@ const WishListPage = () => {
         </div>
       ) : (
         <div className="mx-auto max-w-7xl">
-          <h1 className="mb-5 text-[32px] font-bold uppercase md:mb-6 md:text-[40px]">
-            Wishlist
-          </h1>
+          <div className="flex items-center gap-3 mb-5 md:mb-6">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.push("/")}
+              className="h-9 w-9 rounded-full">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <h1 className="text-[32px] font-bold uppercase md:text-[40px]">
+              Wishlist
+            </h1>
+          </div>
           <div className="grid grid-cols-1 justify-items-center sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {wishlistItems.map((product) => (
+            {wishlistItems.map((product: Product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>

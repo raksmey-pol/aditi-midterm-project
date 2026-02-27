@@ -4,9 +4,13 @@ import aditi.wing.ecom.api.domain.address.model.Address;
 import aditi.wing.ecom.api.domain.address.repository.AddressRepository;
 import aditi.wing.ecom.api.domain.auth.model.User;
 import aditi.wing.ecom.api.domain.auth.repository.UserRepository;
+import aditi.wing.ecom.api.domain.cart.model.Cart;
+import aditi.wing.ecom.api.domain.cart.model.CartItem;
+import aditi.wing.ecom.api.domain.cart.repository.CartRepository;
 import aditi.wing.ecom.api.domain.orders.dto.OrderItemRequest;
 import aditi.wing.ecom.api.domain.orders.dto.OrderRequest;
 import aditi.wing.ecom.api.domain.orders.dto.OrderResponse;
+import aditi.wing.ecom.api.domain.orders.dto.PlaceOrderRequest;
 import aditi.wing.ecom.api.domain.orders.enums.OrderStatus;
 import aditi.wing.ecom.api.domain.orders.mapper.OrderMapper;
 import aditi.wing.ecom.api.domain.orders.model.Order;
@@ -14,6 +18,7 @@ import aditi.wing.ecom.api.domain.orders.model.OrderItem;
 import aditi.wing.ecom.api.domain.orders.repository.OrderRepository;
 import aditi.wing.ecom.api.domain.seller.model.Product;
 import aditi.wing.ecom.api.domain.seller.repository.ProductRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +32,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
+    private final CartRepository cartRepository;
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final UserRepository userRepository;
@@ -34,84 +40,94 @@ public class OrderServiceImpl implements OrderService {
     private final ProductRepository productRepository;
 
     @Override
-    @Transactional // CRITICAL: If anything fails, the database rolls back completely!
-    public OrderResponse createOrder(String userEmail, OrderRequest request) {
+    @Transactional
+    public OrderResponse placeOrder(User user, PlaceOrderRequest request) {
 
-        // 1. Verify Buyer
-        User buyer = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("Buyer not found"));
+        Address address = addressRepository.findByIdAndUser(request.shippingAddressId(), user)
+                .orElseThrow(() -> new EntityNotFoundException("Address not found"));
 
-        // 2. Fetch and Verify Address
-        Address address = addressRepository.findById(request.shippingAddressId())
-                .orElseThrow(() -> new IllegalArgumentException("Address not found"));
+        Cart cart = cartRepository.findByUserWithItems(user)
+                .orElseThrow(() -> new EntityNotFoundException("Cart is empty"));
 
-        if (!address.getUser().getId().equals(buyer.getId())) {
-            throw new IllegalArgumentException("You can only ship to your own saved addresses.");
+        if (cart.getItems().isEmpty()) {
+            throw new IllegalStateException("Cannot place order with empty cart");
         }
 
-        // 3. Initialize Order
-        Order order = new Order();
-        order.setBuyerId(buyer.getId());
-        order.setStatus(OrderStatus.PENDING);
-
-        String addressSnapshot = String.format("%s, %s, %s, %s, %s %s",
-                address.getRecipientName(),
-                address.getPhoneNumber(),
-                address.getStreet1(),
-                address.getCity(),
-                address.getState(),
-                address.getCountry());
-
-        order.setShippingAddress(addressSnapshot);
-
-        BigDecimal totalAmount = BigDecimal.ZERO;
         List<OrderItem> orderItems = new ArrayList<>();
-        List<Product> productsToUpdate = new ArrayList<>();
+        BigDecimal total = BigDecimal.ZERO;
 
-        // 4. Process Items Securely
-        for (OrderItemRequest itemRequest : request.items()) {
+        for (CartItem cartItem : cart.getItems()) {
+            Product product = cartItem.getProduct();
 
-            Product product = productRepository.findById(itemRequest.productId())
-                    .orElseThrow(() -> new IllegalArgumentException("Product not found: " + itemRequest.productId()));
-
-            // Stock Check
-            if (product.getStockQuantity() < itemRequest.quantity()) {
-                throw new IllegalArgumentException("Insufficient stock for: " + product.getName() +
-                        ". Only " + product.getStockQuantity() + " left.");
+            if (product.getStockQuantity() < cartItem.getQuantity()) {
+                throw new IllegalStateException(
+                        "Insufficient stock for product: " + product.getName()
+                );
             }
 
-            // Deduct Stock
-            product.setStockQuantity(product.getStockQuantity() - itemRequest.quantity());
-            productsToUpdate.add(product);
+            product.setStockQuantity(product.getStockQuantity() - cartItem.getQuantity());
+            if (product.getStockQuantity() == 0) {
+                product.setStatus(Product.ProductStatus.OUT_OF_STOCK);
+            }
+            productRepository.save(product);
 
-            // Build Item linking to Seller
-            OrderItem item = new OrderItem();
-            item.setOrder(order);
-            item.setProductId(product.getId());
-            item.setSellerId(product.getSellerId());
+            OrderItemRequest itemRequest = new OrderItemRequest(
+                    product.getId(),
+                    product.getSellerId(),
+                    product.getName(),
+                    product.getImageUrl(),
+                    cartItem.getQuantity(),
+                    cartItem.getPrice()
+            );
 
-            item.setProductName(product.getName());
-            item.setProductImageUrl(product.getImageUrl());
-
-            item.setQuantity(itemRequest.quantity());
-            item.setPrice(product.getPrice());
-
-            // Calculate total
-            BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(itemRequest.quantity()));
-            totalAmount = totalAmount.add(itemTotal);
-
-            orderItems.add(item);
+            orderItems.add(orderMapper.toItemEntity(itemRequest));
+            total = total.add(cartItem.getPrice()
+                    .multiply(BigDecimal.valueOf(cartItem.getQuantity())));
         }
 
-        // 5. Finalize and Save
-        order.setItems(orderItems);
-        order.setTotalAmount(totalAmount);
+        // ← use formatted string instead of UUID
+        OrderRequest orderRequest = new OrderRequest(
+                total,
+                formatAddress(address),
+                orderItems.stream()
+                        .map(item -> new OrderItemRequest(
+                                item.getProductId(),
+                                item.getSellerId(),
+                                item.getProductName(),
+                                item.getProductImageUrl(),
+                                item.getQuantity(),
+                                item.getPrice()
+                        ))
+                        .toList()
+        );
 
-        orderRepository.save(order);
-        productRepository.saveAll(productsToUpdate);
+        Order order = orderMapper.toEntity(orderRequest);
+        order.setBuyerId(user.getId());
+        Order savedOrder = orderRepository.saveAndFlush(order);
 
-        return orderMapper.toResponse(order);
+        cart.getItems().clear();
+        cartRepository.save(cart);
+
+        return orderMapper.toResponse(savedOrder);
     }
+
+    private String formatAddress(Address address) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(address.getRecipientName()).append(", ");
+        sb.append(address.getPhoneNumber()).append(", ");
+        sb.append(address.getStreet1());
+        if (address.getStreet2() != null && !address.getStreet2().isBlank()) {
+            sb.append(", ").append(address.getStreet2());
+        }
+        sb.append(", ").append(address.getCity());
+        sb.append(", ").append(address.getState());
+        if (address.getZipCode() != null && !address.getZipCode().isBlank()) {
+            sb.append(" ").append(address.getZipCode());
+        }
+        sb.append(", ").append(address.getCountry());
+        return sb.toString();
+    }
+
 
     @Override
     public OrderResponse getOrder(UUID id, String userEmail) {

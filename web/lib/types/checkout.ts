@@ -1,13 +1,11 @@
-export interface AddressForm {
-  label: string;         
-  recipientName: string;
-  phoneNumber: string;
-  street1: string;
-  street2: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
+import { AddressResponse } from "@/lib/services/addresses.service";
+
+export interface CheckoutState {
+  step: number;
+  address: AddressResponse | null; // ← was AddressForm
+  addressId: string | null;
+  shippingMethod: ShippingMethod | null;
+  paymentMethod: string;
 }
 
 export interface ShippingMethod {
@@ -16,12 +14,4 @@ export interface ShippingMethod {
   description: string;
   price: number;
   days: string;
-}
-
-export interface CheckoutState {
-  step: number;
-  address: AddressForm | null;
-  addressId: string | null;
-  shippingMethod: ShippingMethod | null;
-  paymentMethod: string;
 }

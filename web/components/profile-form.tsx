@@ -18,12 +18,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useGetAddresses } from "@/hooks/useAddress";
 import {
   ProfileFormData,
   profileFormSchema,
 } from "@/schemas/customer-validation";
 import AddressModal from "./address-modal";
+import { useMyAddresses } from "@/hooks/useAddress";
 
 interface ProfileFormProps {
   customer: Customer;
@@ -32,7 +32,7 @@ interface ProfileFormProps {
 export function ProfileForm({ customer }: ProfileFormProps) {
   const [isEditing, setIsEditing] = useState(false);
   const updateProfile = useUpdateProfile();
-  const { data: addresses, isLoading: isAddressesLoading } = useGetAddresses();
+  const { data: addresses, isLoading: isAddressesLoading } = useMyAddresses();
 
   const {
     register,

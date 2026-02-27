@@ -1,9 +1,13 @@
 package aditi.wing.ecom.api.domain.orders.controller;
 
+import aditi.wing.ecom.api.domain.auth.model.User;
+import aditi.wing.ecom.api.domain.auth.repository.UserRepository;
 import aditi.wing.ecom.api.domain.orders.dto.OrderRequest;
 import aditi.wing.ecom.api.domain.orders.dto.OrderResponse;
+import aditi.wing.ecom.api.domain.orders.dto.PlaceOrderRequest;
 import aditi.wing.ecom.api.domain.orders.enums.OrderStatus;
 import aditi.wing.ecom.api.domain.orders.service.OrderService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,16 +23,17 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderController {
 
+    private final UserRepository userRepository;
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(
+    public ResponseEntity<OrderResponse> placeOrder(
             Principal principal,
-            @Valid @RequestBody OrderRequest request) {
-
-        OrderResponse newOrder = orderService.createOrder(principal.getName(), request);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(newOrder);
+            @RequestBody @Valid PlaceOrderRequest request) {
+        User user = userRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(orderService.placeOrder(user, request));
     }
 
     @GetMapping("/mine")
