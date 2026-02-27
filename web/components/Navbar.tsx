@@ -49,8 +49,10 @@ export default function Navbar() {
   const pathname = usePathname();
   const [authState, setAuthState] = useState(getAuthSnapshot);
   const { isLoggedIn, displayName } = authState;
+  const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
+    setHasMounted(true);
     const syncAuth = () => setAuthState(getAuthSnapshot());
     window.addEventListener("storage", syncAuth);
     window.addEventListener("focus", syncAuth);
@@ -78,7 +80,7 @@ export default function Navbar() {
         {/* Left: mobile menu + logo */}
         <div className="w-auto md:w-1/3 flex items-center gap-2.5 justify-start md:gap-0">
           <MobileMenu />
-          <Logo clickable={!isLoggedIn} />
+          {hasMounted && <Logo clickable={!isLoggedIn} />}
         </div>
 
         {/* Centre: nav links */}
@@ -86,23 +88,25 @@ export default function Navbar() {
 
         {/* Right: icons + auth */}
         <div className="w-auto md:w-1/3 flex items-center justify-end gap-5">
-          {isLoggedIn ? (
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-semibold text-lightColor hidden sm:block">
-                {displayName}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="text-sm font-semibold text-lightColor hover:text-darkColor hover:cursor-pointer hoverEffect"
-              >
-                Logout
-              </button>
-            </div>
-          ) : (
-            <Link href="/login">
-              <SignIn />
-            </Link>
-          )}
+          {hasMounted ? (
+            isLoggedIn ? (
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-semibold text-lightColor hidden sm:block">
+                  {displayName}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="text-sm font-semibold text-lightColor hover:text-darkColor hover:cursor-pointer hoverEffect"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <Link href="/login">
+                <SignIn />
+              </Link>
+            )
+          ) : null}
         </div>
       </Container>
     </nav>

@@ -21,6 +21,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "placehold.net",
       },
+      {
+        protocol: "https",
+        hostname: "cdsassets.apple.com",
+      },
     ],
   },
   async rewrites() {

@@ -27,6 +27,9 @@ export const API_CONFIG = {
       list: "/api/products",
       categories: "/api/products/categories",
     },
+    slides: {
+      list: "/api/slides",
+    },
     admin: {
       dashboard: "/api/admin/dashboard",
       users: "/api/admin/users",

@@ -38,6 +38,7 @@ public class SecurityConfig {
                         // endpoints
                         .requestMatchers("/api/public/**").permitAll() // Public endpoints
                         .requestMatchers("/api/products/**").permitAll() // Public product endpoints
+                        .requestMatchers("/api/slides/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll() // Uploaded product images
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") // Admin only
                         .requestMatchers("/api/auth/change-password").authenticated()
