@@ -1,4 +1,4 @@
-import { API_CONFIG } from "@/lib/api-client";
+import { apiClient, API_CONFIG } from "@/lib/api-client";
 import { Customer, CustomerStats, PasswordFormData } from "../types/customer";
 
 export type UpdateProfilePayload = {
@@ -9,109 +9,19 @@ export type UpdateProfilePayload = {
   address?: string | null;
 };
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
-
 export async function getCustomerProfile(): Promise<Customer> {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-
-  if (!token) {
-    throw new Error("No authentication token found");
-  }
-
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api"}/auth/me`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch customer profile");
-  }
-
-  return response.json();
+  return apiClient.get<Customer>(API_CONFIG.endpoints.auth.me);
 }
 
 export const updateProfile = async (data: UpdateProfilePayload) => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-  if (!token) throw new Error("No authentication token found");
-  console.log("SENDING REQUEST TO: ", API_CONFIG.endpoints.auth.me);
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api"}/auth/me`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(data),
-    },
-  );
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || "Failed to update profile");
-  }
-
-  return response.json();
+  return apiClient.put<Customer>(API_CONFIG.endpoints.auth.me, data);
 };
 
 export type ChangePasswordPayload = Omit<PasswordFormData, "confirmPassword">;
 export const changePassword = async (data: ChangePasswordPayload) => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api"}/auth/change-password`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(data),
-    },
-  );
-
-  // 1. Read the raw text first instead of jumping straight to .json()
-  const text = await response.text();
-
-  // 2. Safely try to parse it, or default to an empty object if it's blank
-  const responseData = text ? JSON.parse(text) : {};
-
-  // 3. Handle errors
-  if (!response.ok) {
-    throw new Error(responseData.message || "Failed to change password");
-  }
-
-  return responseData;
+  return apiClient.put<unknown>(API_CONFIG.endpoints.auth.changePassword, data);
 };
 
 export const fetchCustomerStats = async (): Promise<CustomerStats> => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-
-  if (!token) {
-    throw new Error("No authentication token found");
-  }
-
-  const response = await fetch(`${API_BASE_URL}/api/buyers/me/stats`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch customer stats: ${response.status}`);
-  }
-
-  return response.json();
+  return apiClient.get<CustomerStats>(API_CONFIG.endpoints.buyer.stats);
 };

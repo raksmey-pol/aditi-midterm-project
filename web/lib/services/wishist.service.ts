@@ -1,67 +1,15 @@
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+import { apiClient, API_CONFIG } from "@/lib/api-client";
 
 export const fetchWishlist = async () => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-
-  if (!token) {
-    throw new Error("No authentication token found");
-  }
-
-  const response = await fetch(`${API_BASE_URL}/wishlist`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch wishlist: ${response.status}`);
-  }
-
-  return response.json();
+  return apiClient.get(API_CONFIG.endpoints.buyer.wishlist);
 };
 
 export const addToWishlist = async (productId: string) => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-  if (!token) throw new Error("No authentication token found");
-
-  // 1. Remove the /${productId} from the URL
-  const response = await fetch(`${API_BASE_URL}/wishlist`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ productId }),
-  });
-
-  if (!response.ok) throw new Error(`Failed to add: ${response.status}`);
-  return response.text();
+  return apiClient.post(API_CONFIG.endpoints.buyer.wishlist, { productId });
 };
 
 export const removeFromWishlist = async (productId: string) => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-
-  if (!token) {
-    throw new Error("No authentication token found");
-  }
-
-  const response = await fetch(`${API_BASE_URL}/wishlist/${productId}`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to remove from wishlist: ${response.status}`);
-  }
-
-  return response.text(); // Backend returns a string, not JSON here
+  return apiClient.delete(
+    `${API_CONFIG.endpoints.buyer.wishlist}/${productId}`,
+  );
 };

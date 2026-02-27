@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { QueryProvider } from "@/components/QueryProvider";
 import { CartProvider } from "@/context/cartcontext";
+import { AuthProvider } from "@/context/authcontext";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -18,23 +19,30 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "MyStore - Premium E-commerce Platform",
-  description: "Discover premium products across Electronics, Fashion, Home & Garden, Beauty, and more. Fast shipping, secure checkout, and 30-day returns guaranteed.",
+  description:
+    "Discover premium products across Electronics, Fashion, Home & Garden, Beauty, and more. Fast shipping, secure checkout, and 30-day returns guaranteed.",
   keywords: "ecommerce, shopping, products, electronics, fashion, home, beauty",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <CartProvider>
-        <div className="flex flex-col min-h-screen">
-          <Navbar />
-          <main className="flex-1">
-            <QueryProvider>{children}</QueryProvider>
-          </main>
-          <Footer />
-        </div>
-        </CartProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <CartProvider>
+              <div className="flex flex-col min-h-screen">
+                <Navbar />
+                <main className="flex-1">{children}</main>
+                <Footer />
+              </div>
+            </CartProvider>
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );

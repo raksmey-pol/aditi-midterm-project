@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Container from "./Container";
 import MobileMenu from "./MobileMenu";
@@ -9,43 +9,19 @@ import HeaderMenu from "./HeaderMenu";
 import SignIn from "./SignIn";
 import Link from "next/link";
 import { authService } from "@/lib/services/auth.service";
+import { useAuthContext } from "@/context/authcontext";
+import BuyerNavActions from "./BuyerNavActions";
 
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [displayName, setDisplayName] = useState("");
+  const { user, isLoggedIn, displayName, clearUser } = useAuthContext();
 
-  useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      setIsLoggedIn(true);
-      // Try stored user object first
-      const stored = authService.getUser();
-      if (stored) {
-        const name = (stored as any).firstName
-          ? `${(stored as any).firstName} ${(stored as any).lastName ?? ""}`.trim()
-          : (stored as any).fullName || (stored as any).email || "Account";
-        setDisplayName(name);
-      } else {
-        // Fallback: decode JWT payload for a name hint
-        try {
-          const payload = JSON.parse(atob(token.split(".")[1]));
-          setDisplayName(payload.sub || "Account");
-        } catch {
-          setDisplayName("Account");
-        }
-      }
-    } else {
-      setIsLoggedIn(false);
-      setDisplayName("");
-    }
-  }, []);
+  const isBuyer = user?.roles?.includes("buyer") ?? false;
 
   const handleLogout = async () => {
     await authService.logout();
-    setIsLoggedIn(false);
-    setDisplayName("");
+    clearUser();
     router.push("/");
   };
 
@@ -60,7 +36,7 @@ export default function Navbar() {
         {/* Left: mobile menu + logo */}
         <div className="w-auto md:w-1/3 flex items-center gap-2.5 justify-start md:gap-0">
           <MobileMenu />
-          <Logo clickable={!isLoggedIn} />
+          <Logo clickable={!isLoggedIn || isBuyer} />
         </div>
 
         {/* Centre: nav links – hidden when logged in */}
@@ -70,17 +46,21 @@ export default function Navbar() {
         {/* Right: icons + auth */}
         <div className="w-auto md:w-1/3 flex items-center justify-end gap-5">
           {isLoggedIn ? (
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-semibold text-lightColor hidden sm:block">
-                {displayName}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="text-sm font-semibold text-lightColor hover:text-darkColor hover:cursor-pointer hoverEffect"
-              >
-                Logout
-              </button>
-            </div>
+            isBuyer ? (
+              <BuyerNavActions />
+            ) : (
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-semibold text-lightColor hidden sm:block">
+                  {displayName}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="text-sm font-semibold text-lightColor hover:text-darkColor hover:cursor-pointer hoverEffect"
+                >
+                  Logout
+                </button>
+              </div>
+            )
           ) : (
             <Link href="/login">
               <SignIn />

@@ -7,36 +7,29 @@ import { useState } from "react";
 import { useCart } from "@/hooks/useCart";
 import { useRouter } from "next/navigation";
 import { useCartContext } from "@/context/cartcontext";
-import { Heart } from "lucide-react"; // ← add this for the icon
-import { useWishlist } from "@/hooks/useWishlist"; // ← add this for wishlist logic
+import { Heart } from "lucide-react";
+import { useWishlist } from "@/hooks/useWishlist";
+import { useAuthContext } from "@/context/authcontext";
 
 const ProductCard = ({ product }: { product: Product }) => {
   const router = useRouter();
   const [adding, setAdding] = useState(false);
   const { refetch } = useCartContext();
+  const { user, isLoggedIn } = useAuthContext();
 
-  const [userId] = useState<string>(() => {
-    if (typeof window === "undefined") return "";
-    const user = localStorage.getItem("user");
-    if (!user) return "";
-    try {
-      return JSON.parse(user).id ?? "";
-    } catch {
-      return "";
-    }
-  });
-
+  const userId = user?.id ?? "";
   const { addItem } = useCart(userId);
-
   const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
 
-  const isFavorited = wishlistItems?.some((item) => item.id === product.id);
+  const isFavorited = wishlistItems?.some(
+    (item: any) => item.id === product.id || item.productId === product.id,
+  );
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevents the Link from navigating when clicking the heart
+    e.preventDefault();
     e.stopPropagation();
 
-    if (!userId) {
+    if (!isLoggedIn) {
       router.push("/login");
       return;
     }
@@ -47,12 +40,9 @@ const ProductCard = ({ product }: { product: Product }) => {
       addToWishlist(product.id);
     }
   };
-  // ----------------------------
 
   const handleAddToCart = async () => {
-    // ✅ read directly at click time, not from state
-    const user = localStorage.getItem("user");
-    if (!user) {
+    if (!isLoggedIn) {
       router.push("/login");
       return;
     }

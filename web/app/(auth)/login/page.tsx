@@ -7,9 +7,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, FormEvent } from "react";
 import { authService } from "@/lib/services/auth.service";
+import { useAuthContext } from "@/context/authcontext";
 
 export default function Login() {
   const router = useRouter();
+  const { setUser } = useAuthContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -59,8 +61,9 @@ export default function Login() {
         passwordHash: password, // Backend expects this field name
       });
 
-      // Store user data
+      // Store user data and update global auth state
       authService.setUser(response.user);
+      setUser(response.user);
 
       // Redirect based on user role
       const redirectPath = getRedirectPath(response.user.roles);
