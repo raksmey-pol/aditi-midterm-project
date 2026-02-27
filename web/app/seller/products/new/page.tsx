@@ -1,11 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { sellerService } from "@/lib/services/seller.service";
 import { Input } from "@/components/ui/input";
 import { Field, FieldLabel } from "@/components/ui/field";
 import Image from "next/image";
+import { Category } from "@/lib/types/seller";
 
 export default function NewProduct() {
   const router = useRouter();
@@ -14,6 +15,8 @@ export default function NewProduct() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -65,6 +68,13 @@ export default function NewProduct() {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    sellerService
+      .getCategories()
+      .then(setCategories)
+      .catch(() => setError("Failed to load categories"))
+      .finally(() => setLoadingCategories(false));
+  }, []);
 
   return (
     <div className="p-8 max-w-3xl mx-auto">
@@ -130,13 +140,23 @@ export default function NewProduct() {
 
         <Field>
           <FieldLabel>Category</FieldLabel>
-          <Input
+          <select
+            className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
             value={formData.category}
             onChange={(e) =>
               setFormData({ ...formData, category: e.target.value })
             }
-            placeholder="e.g., Electronics, Clothing"
-          />
+            disabled={loadingCategories}
+          >
+            <option value="">
+              {loadingCategories ? "Loading..." : "Select a category"}
+            </option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.name}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
         </Field>
 
         <Field>

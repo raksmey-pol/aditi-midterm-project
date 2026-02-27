@@ -48,4 +48,6 @@ public interface AuthService {
      * Deactivate user account
      */
     void deactivateUser(UUID userId);
+
+    UserStatsDto getUserStats(UUID userId);
 }

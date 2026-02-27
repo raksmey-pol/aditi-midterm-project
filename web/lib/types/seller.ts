@@ -50,3 +50,8 @@ export interface BulkStockUpdate {
     newStockQuantity: number;
   }[];
 }
+
+export interface Category {
+  id: string;
+  name: string;
+}

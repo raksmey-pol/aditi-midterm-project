@@ -3,9 +3,9 @@
 import React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from "@/hooks/useAuth"; // Using the hook we just made!
+import { useAuth } from "@/hooks/useAuth";
+import { useCustomerStats } from "@/hooks/useCustomerStats";
 
-// Import your custom components (make sure these files exist in your folder)
 import { CustomerHeader } from "./customer-headers";
 import { StatsCards } from "./stats-card";
 import { ProfileForm } from "./profile-form";
@@ -13,7 +13,20 @@ import { PasswordChangeForm } from "./change-password-form";
 import { Spinner } from "./ui/spinner";
 
 export default function CustomerProfile() {
-  const { data: customer, isLoading, isError } = useAuth();
+  const {
+    data: customer,
+    isLoading: isAuthLoading,
+    isError: isAuthError,
+  } = useAuth();
+
+  const {
+    data: stats,
+    isLoading: isStatsLoading,
+    isError: isStatsError,
+  } = useCustomerStats(customer?.id);
+
+  const isLoading = isAuthLoading || isStatsLoading;
+  const isError = isAuthError || isStatsError;
 
   if (isLoading) {
     return (
@@ -46,9 +59,9 @@ export default function CustomerProfile() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
         <CustomerHeader customer={customer} />
-        <StatsCards
-          stats={customer.stats || { orders: 0, spent: 0, reviews: 0 }}
-        />
+
+        {stats && <StatsCards stats={stats} />}
+
         <Card className="border-0 bg-white/80 backdrop-blur">
           <Tabs defaultValue="profile" className="w-full">
             <CardHeader>
@@ -67,12 +80,10 @@ export default function CustomerProfile() {
             </CardHeader>
 
             <CardContent>
-              {/* Profile Tab */}
               <TabsContent value="profile" className="mt-0">
                 <ProfileForm customer={customer} />
               </TabsContent>
 
-              {/* Password Tab */}
               <TabsContent value="password" className="mt-0">
                 <PasswordChangeForm />
               </TabsContent>

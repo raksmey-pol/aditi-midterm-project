@@ -15,6 +15,7 @@ export const API_CONFIG = {
       lowStock: "/api/seller/inventory/low-stock",
       bulkUpdate: "/api/seller/inventory/bulk-update",
       payouts: "/api/seller/payouts",
+      categories: "/api/categories",
     },
     buyer: {
       orders: "buyer/orders",

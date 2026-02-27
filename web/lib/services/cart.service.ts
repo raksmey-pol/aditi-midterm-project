@@ -1,6 +1,6 @@
 import { AddToCartRequest, CartResponse, UpdateCartItemRequest } from '../types/cart';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 const CART_URL = `${BASE_URL}/api/v1/carts`;
 
 const getAuthHeaders = (): HeadersInit => {
