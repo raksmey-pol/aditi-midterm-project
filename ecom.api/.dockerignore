@@ -1,0 +1,11 @@
+target/
+!target/*.jar
+*.iml
+*.ipr
+*.iws
+.idea/
+.settings/
+.classpath
+.project
+uploads/
+*.log

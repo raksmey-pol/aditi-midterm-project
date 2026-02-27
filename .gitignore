@@ -1,2 +1,24 @@
 .vscode
 node_modules/
+# Environment – NEVER commit
+.env
+
+# Let's Encrypt / Certbot state
+certbot/
+
+# RSA key pair mounted into the API container
+certs/
+
+# IntelliJ / IDE
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+
+# Node
+web/node_modules/
+web/.next/
+
+# Maven
+ecom.api/target/
