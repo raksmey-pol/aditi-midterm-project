@@ -6,7 +6,7 @@ import type {
   RoleResponse,
   UserResponse,
 } from "@/lib/types/auth";
-
+import Cookies from "js-cookie";
 export class AuthService {
   /**
    * Login user
@@ -97,6 +97,12 @@ export class AuthService {
     if (typeof window === "undefined") return;
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("refreshToken", refreshToken);
+
+    Cookies.set("accessToken", accessToken, {
+      expires: 7,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
   }
 
   /**
@@ -107,6 +113,7 @@ export class AuthService {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
+    Cookies.remove("accessToken");
   }
 
   /**
