@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public record OrderRequest(
         BigDecimal totalAmount,
-        UUID shippingAddressId,
+        String shippingAddress,
         List<OrderItemRequest> items
 ) {}
 

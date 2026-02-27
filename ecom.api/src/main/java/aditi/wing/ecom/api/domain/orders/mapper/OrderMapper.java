@@ -11,7 +11,7 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
 
-    // --- REQUEST TO ENTITY ---
+    @Mapping(target = "shippingAddress", source = "shippingAddress") // ← direct mapping
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "buyerId", ignore = true)
     @Mapping(target = "status", constant = "PENDING")
@@ -33,6 +33,6 @@ public interface OrderMapper {
     // --- ENTITY TO RESPONSE ---
     OrderResponse toResponse(Order order);
 
-    // ADD THIS: MapStruct uses this to map the List<OrderItem> -> List<OrderItemResponse>
+    @Mapping(target = "subtotal", expression = "java(orderItem.getPrice().multiply(java.math.BigDecimal.valueOf(orderItem.getQuantity())))")
     OrderItemResponse toItemResponse(OrderItem orderItem);
 }

@@ -14,5 +14,6 @@ public interface AddressMapper {
     @Mapping(target = "user", ignore = true)
     Address toEntity(AddressRequest request);
 
-    AddressResponse toResponse(Address address);
+    @Mapping(target = "isDefault", source = "default")
+    AddressResponse toResponse(Address entity);
 }

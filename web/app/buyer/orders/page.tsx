@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -12,12 +13,13 @@ import {
 } from "@/components/ui/pagination";
 import { OrderItem } from "@/components/order-items";
 import { useMyOrders } from "@/hooks/useOrder";
+import { Button } from "@/components/ui/button";
 
 export default function OrdersPage() {
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Fetch real data from your backend
   const { data: orders, isLoading, isError } = useMyOrders();
 
   if (isLoading) {
@@ -36,7 +38,6 @@ export default function OrdersPage() {
     );
   }
 
-  // Pagination Logic
   const totalPages = Math.ceil(orders.length / itemsPerPage);
   const currentOrders = orders.slice(
     (currentPage - 1) * itemsPerPage,
@@ -50,9 +51,19 @@ export default function OrdersPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 py-8">
-      <h1 className="mb-5 text-[32px] font-bold uppercase md:mb-6 md:text-[40px]">
-        My Orders
-      </h1>
+      {/* ── Header with back button ── */}
+      <div className="flex items-center gap-3 mb-6">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => router.push("/")}
+          className="h-9 w-9 rounded-full">
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <h1 className="text-[32px] font-bold uppercase md:text-[40px]">
+          My Orders
+        </h1>
+      </div>
 
       {orders.length === 0 ? (
         <div className="py-10 text-center text-muted-foreground border rounded-lg border-dashed">
@@ -74,7 +85,6 @@ export default function OrdersPage() {
         </div>
       )}
 
-      {/* Your exact Pagination implementation */}
       {totalPages > 1 && (
         <Pagination>
           <PaginationContent>

@@ -1,12 +1,13 @@
 "use client";
 
-import { AddressForm, ShippingMethod } from "@/lib/types/checkout";
+import { ShippingMethod } from "@/lib/types/checkout";
 import { CartResponse } from "@/lib/types/cart";
 import { useState } from "react";
+import { AddressResponse } from "@/lib/services/addresses.service";
 
 interface Props {
   cart: CartResponse;
-  address: AddressForm;
+  address: AddressResponse; // ← was AddressForm
   shippingMethod: ShippingMethod;
   onPlaceOrder: () => void;
   onBack: () => void;

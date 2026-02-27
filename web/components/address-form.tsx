@@ -1,3 +1,4 @@
+// components/address-form.tsx
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -16,20 +17,28 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Loader2 } from "lucide-react";
-import { useAddAddress } from "@/hooks/useAddress";
+import { useCreateAddress, useUpdateAddress } from "@/hooks/useAddress";
 
 interface AddressFormProps {
-  onSuccess?: () => void;
+  onSuccess?: (updatedId?: string) => void;
+  editAddress?: {
+    id: string;
+    defaultValues: AddressFormValues;
+  };
 }
 
-export function AddressForm({ onSuccess }: AddressFormProps) {
-  // 1. Bring in our clean React Query mutation!
-  const addAddressMutation = useAddAddress();
+export function AddressForm({ onSuccess, editAddress }: AddressFormProps) {
+  const isEditing = !!editAddress;
+  const addAddressMutation = useCreateAddress();
+  const updateAddressMutation = useUpdateAddress();
 
-  // 2. Initialize the form with Zod
+  const isPending = isEditing
+    ? updateAddressMutation.isPending
+    : addAddressMutation.isPending;
+
   const form = useForm<AddressFormValues>({
     resolver: zodResolver(addressSchema),
-    defaultValues: {
+    defaultValues: editAddress?.defaultValues ?? {
       label: "",
       recipientName: "",
       phoneNumber: "",
@@ -38,27 +47,22 @@ export function AddressForm({ onSuccess }: AddressFormProps) {
       city: "",
       state: "",
       zipCode: "",
-      country: "Cambodia", 
+      country: "Cambodia",
       isDefault: false,
     },
   });
 
-  // 3. The new, ultra-lightweight submit handler
   const onSubmit = async (data: AddressFormValues) => {
     try {
-      // Send the data to your service via the hook
-      await addAddressMutation.mutateAsync(data);
-
-      // If we get here, it succeeded!
-      form.reset();
-
-      // Close the modal if the prop was provided
-      if (onSuccess) {
-        onSuccess();
+      if (isEditing) {
+        await updateAddressMutation.mutateAsync({ id: editAddress.id, data });
+        if (onSuccess) onSuccess(editAddress.id); // ← pass id back
+      } else {
+        const created = await addAddressMutation.mutateAsync(data);
+        if (onSuccess) onSuccess(created.id); 
       }
+      form.reset();
     } catch (error: any) {
-      console.error("Submission error:", error);
-      // The error.message comes directly from our service's raw text parsing!
       alert(error.message || "Failed to save address");
     }
   };
@@ -68,7 +72,6 @@ export function AddressForm({ onSuccess }: AddressFormProps) {
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-6 max-w-2xl">
-        {/* Row 1: Label & Recipient */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -98,7 +101,6 @@ export function AddressForm({ onSuccess }: AddressFormProps) {
           />
         </div>
 
-        {/* Row 2: Phone & Country */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -120,7 +122,7 @@ export function AddressForm({ onSuccess }: AddressFormProps) {
               <FormItem>
                 <FormLabel>Country</FormLabel>
                 <FormControl>
-                  <Input placeholder="KH" {...field} />
+                  <Input placeholder="Cambodia" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -128,7 +130,6 @@ export function AddressForm({ onSuccess }: AddressFormProps) {
           />
         </div>
 
-        {/* Row 3: Street Addresses */}
         <FormField
           control={form.control}
           name="street1"
@@ -156,7 +157,6 @@ export function AddressForm({ onSuccess }: AddressFormProps) {
           )}
         />
 
-        {/* Row 4: City, State, Zip */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FormField
             control={form.control}
@@ -199,14 +199,12 @@ export function AddressForm({ onSuccess }: AddressFormProps) {
           />
         </div>
 
-        {/* Default Checkbox */}
         <FormField
           control={form.control}
           name="isDefault"
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
               <FormControl>
-                {/* Ensure we default to false if undefined so Radix UI doesn't crash */}
                 <Checkbox
                   checked={field.value ?? false}
                   onCheckedChange={field.onChange}
@@ -222,16 +220,14 @@ export function AddressForm({ onSuccess }: AddressFormProps) {
           )}
         />
 
-        {/* Submit Button */}
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={addAddressMutation.isPending}>
-          {addAddressMutation.isPending ? (
+        <Button type="submit" className="w-full" disabled={isPending}>
+          {isPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Saving...
             </>
+          ) : isEditing ? (
+            "Update Address"
           ) : (
             "Save Address"
           )}
