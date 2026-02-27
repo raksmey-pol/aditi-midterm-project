@@ -8,14 +8,16 @@ interface CartContextType {
   cart: CartResponse | null;
   itemCount: number;
   refetch: () => void;
-  clearCartLocally: () => void; 
+  clearCartLocally: () => void;
+  setCart: React.Dispatch<React.SetStateAction<CartResponse | null>>;
 }
 
 const CartContext = createContext<CartContextType>({
   cart: null,
   itemCount: 0,
   refetch: () => {},
-  clearCartLocally: () => {}, 
+  clearCartLocally: () => {},
+  setCart: () => {},
 });
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
@@ -25,14 +27,16 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const refetch = () => {
     const userId = userIdRef.current;
     if (!userId) return;
-    cartService
-      .getCart(userId)
+    cartService.getCart(userId)
       .then(setCart)
       .catch(() => {});
   };
+
   const clearCartLocally = () => {
-  setCart((prev) => prev ? { ...prev, items: [], totalPrice: 0 } : prev);
-};
+    setCart((prev) =>
+      prev ? { ...prev, items: [], totalPrice: 0 } : prev
+    );
+  };
 
   useEffect(() => {
     const user = localStorage.getItem("user");
@@ -41,7 +45,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       const parsed = JSON.parse(user);
       if (parsed?.id) {
         userIdRef.current = parsed.id;
-        refetch(); // safe to call here — not setState directly
+        refetch();
       }
     } catch {}
   }, []);
@@ -50,7 +54,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
 
   return (
-    <CartContext.Provider value={{ cart, itemCount, refetch , clearCartLocally }}>
+    <CartContext.Provider value={{ cart, itemCount, refetch, clearCartLocally, setCart }}>
       {children}
     </CartContext.Provider>
   );

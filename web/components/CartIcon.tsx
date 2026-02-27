@@ -6,7 +6,7 @@ import React from "react";
 import { useCartContext } from "@/context/cartcontext";
 const CartIcon = () => {
   const { itemCount } = useCartContext();
-
+  // console.log("itemCount:", itemCount);
   return (
     <Link href={"/buyer/cart"} className="group relative">
       <ShoppingBag className="w-5 h-5 hover:text-shop_light_green hoverEffect" />
@@ -15,6 +15,7 @@ const CartIcon = () => {
           {itemCount}
         </span>
       )}
+
     </Link>
   );
 };
