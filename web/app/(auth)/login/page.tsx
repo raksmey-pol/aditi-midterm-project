@@ -135,11 +135,13 @@ export default function Login() {
                   <FormItem>
                     <div className="flex items-center justify-between mb-2">
                       <FormLabel>Password</FormLabel>
+                      {/* Forgot password link — no API yet
                       <Link
                         href="/auth/forgot-password"
                         className="text-xs text-primary hover:text-primary/80 transition-colors">
                         Forgot password?
                       </Link>
+                      */}
                     </div>
                     <FormControl>
                       <Input
@@ -158,7 +160,8 @@ export default function Login() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={form.formState.isSubmitting}>
+                disabled={form.formState.isSubmitting}
+              >
                 {form.formState.isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -183,7 +186,8 @@ export default function Login() {
             Don&apos;t have an account?{" "}
             <Link
               href="/register"
-              className="font-semibold text-primary hover:text-primary/80 transition-colors">
+              className="font-semibold text-primary hover:text-primary/80 transition-colors"
+            >
               Sign up for free
             </Link>
           </p>
@@ -194,13 +198,15 @@ export default function Login() {
           By signing in, you agree to our{" "}
           <Link
             href="/terms"
-            className="underline hover:text-foreground transition-colors">
+            className="underline hover:text-foreground transition-colors"
+          >
             Terms of Service
           </Link>{" "}
           and{" "}
           <Link
             href="/privacy"
-            className="underline hover:text-foreground transition-colors">
+            className="underline hover:text-foreground transition-colors"
+          >
             Privacy Policy
           </Link>
         </p>

@@ -28,7 +28,7 @@ export default function CustomerProfile() {
     data: stats,
     isLoading: isStatsLoading,
     isError: isStatsError,
-  } = useCustomerStats(customer?.id);
+  } = useCustomerStats();
 
   const isLoading = isAuthLoading || isStatsLoading;
   const isError = isAuthError || isStatsError;
@@ -43,7 +43,7 @@ export default function CustomerProfile() {
 
   if (isError || !customer) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 md:p-8">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 md:p-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-center h-96">
             <div className="text-center">
@@ -61,7 +61,7 @@ export default function CustomerProfile() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 md:p-8">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* ── Back Button ── */}
         <div className="flex items-center gap-3">
@@ -69,7 +69,8 @@ export default function CustomerProfile() {
             variant="ghost"
             size="icon"
             onClick={() => router.push("/")}
-            className="h-9 w-9 rounded-full">
+            className="h-9 w-9 rounded-full"
+          >
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <span className="text-sm text-muted-foreground">Back to Home</span>
@@ -85,12 +86,14 @@ export default function CustomerProfile() {
               <TabsList className="grid w-full grid-cols-2 bg-slate-100 p-1">
                 <TabsTrigger
                   value="profile"
-                  className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  className="data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                >
                   Profile Information
                 </TabsTrigger>
                 <TabsTrigger
                   value="password"
-                  className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  className="data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                >
                   Change Password
                 </TabsTrigger>
               </TabsList>

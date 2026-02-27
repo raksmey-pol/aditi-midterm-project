@@ -2,7 +2,7 @@ import { cartService } from "../lib/services/cart.service";
 import { useCartContext } from "@/context/cartcontext";
 
 export const useCart = (userId: string) => {
-  const { cart, refetch, setCart } = useCartContext();
+  const { cart, refetch, setCart, isLoading, cartError } = useCartContext();
 
   const addItem = async (productId: string, quantity: number) => {
     await cartService.addItem(userId, { productId, quantity });
@@ -16,7 +16,7 @@ export const useCart = (userId: string) => {
       return {
         ...prev,
         items: prev.items.map((item) =>
-          item.cartItemId === cartItemId ? { ...item, quantity } : item
+          item.cartItemId === cartItemId ? { ...item, quantity } : item,
         ),
       };
     });
@@ -52,6 +52,8 @@ export const useCart = (userId: string) => {
   return {
     cart,
     itemCount,
+    loading: isLoading,
+    error: cartError,
     addItem,
     updateItem,
     removeItem,

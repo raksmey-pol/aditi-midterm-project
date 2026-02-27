@@ -7,6 +7,8 @@ import { CartResponse } from "@/lib/types/cart";
 interface CartContextType {
   cart: CartResponse | null;
   itemCount: number;
+  isLoading: boolean;
+  cartError: string | null;
   refetch: () => void;
   clearCartLocally: () => void;
   setCart: React.Dispatch<React.SetStateAction<CartResponse | null>>;
@@ -15,6 +17,8 @@ interface CartContextType {
 const CartContext = createContext<CartContextType>({
   cart: null,
   itemCount: 0,
+  isLoading: false,
+  cartError: null,
   refetch: () => {},
   clearCartLocally: () => {},
   setCart: () => {},
@@ -22,20 +26,33 @@ const CartContext = createContext<CartContextType>({
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cart, setCart] = useState<CartResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [cartError, setCartError] = useState<string | null>(null);
   const userIdRef = useRef<string>("");
 
   const refetch = () => {
     const userId = userIdRef.current;
-    if (!userId) return;
-    cartService.getCart(userId)
-      .then(setCart)
-      .catch(() => {});
+    if (!userId) {
+      setIsLoading(false);
+      return;
+    }
+    setIsLoading(true);
+    setCartError(null);
+    cartService
+      .getCart(userId)
+      .then((data) => {
+        setCart(data);
+      })
+      .catch((err) => {
+        setCartError(err?.message ?? "Failed to load cart");
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   const clearCartLocally = () => {
-    setCart((prev) =>
-      prev ? { ...prev, items: [], totalPrice: 0 } : prev
-    );
+    setCart((prev) => (prev ? { ...prev, items: [], totalPrice: 0 } : prev));
   };
 
   useEffect(() => {
@@ -54,7 +71,17 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
 
   return (
-    <CartContext.Provider value={{ cart, itemCount, refetch, clearCartLocally, setCart }}>
+    <CartContext.Provider
+      value={{
+        cart,
+        itemCount,
+        isLoading,
+        cartError,
+        refetch,
+        clearCartLocally,
+        setCart,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

@@ -79,7 +79,7 @@ export default function BuyerNavActions() {
           className="flex items-center gap-1.5 text-sm font-semibold text-lightColor hover:text-darkColor hoverEffect"
         >
           <User className="w-5 h-5" />
-          <span className="hidden sm:block max-w-[120px] truncate">
+          <span className="hidden sm:block max-w-30 truncate">
             {displayName}
           </span>
           <ChevronDown

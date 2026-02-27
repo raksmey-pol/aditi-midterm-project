@@ -78,7 +78,7 @@ const ProductCard = ({ product }: { product: Product }) => {
       {/* ----------------------------- */}
 
       {/* Product Image */}
-      <Link href={`/product/${product.id}`}>
+      <Link href={`/products/${product.id}`}>
         <div className="relative aspect-square w-full overflow-hidden group">
           <Image
             src={product.imageUrl || "https://placehold.net/600x600.png"}

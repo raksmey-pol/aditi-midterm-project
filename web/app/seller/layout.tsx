@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { authService } from "@/lib/services/auth.service";
+import { useAuthContext } from "@/context/authcontext";
 
 export default function SellerLayout({
   children,
@@ -12,30 +12,11 @@ export default function SellerLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [displayName, setDisplayName] = useState("");
-
-  useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      const stored = authService.getUser();
-      if (stored) {
-        const name = (stored as any).firstName
-          ? `${(stored as any).firstName} ${(stored as any).lastName ?? ""}`.trim()
-          : (stored as any).fullName || (stored as any).email || "Account";
-        setDisplayName(name);
-      } else {
-        try {
-          const payload = JSON.parse(atob(token.split(".")[1]));
-          setDisplayName(payload.sub || "Account");
-        } catch {
-          setDisplayName("Account");
-        }
-      }
-    }
-  }, []);
+  const { displayName, clearUser } = useAuthContext();
 
   const handleLogout = async () => {
     await authService.logout();
+    clearUser();
     router.push("/");
   };
 

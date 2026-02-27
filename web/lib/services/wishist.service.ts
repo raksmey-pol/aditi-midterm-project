@@ -1,7 +1,7 @@
 import { apiClient, API_CONFIG } from "@/lib/api-client";
 
-export const fetchWishlist = async () => {
-  return apiClient.get(API_CONFIG.endpoints.buyer.wishlist);
+export const fetchWishlist = async (): Promise<any[]> => {
+  return apiClient.get<any[]>(API_CONFIG.endpoints.buyer.wishlist);
 };
 
 export const addToWishlist = async (productId: string) => {
